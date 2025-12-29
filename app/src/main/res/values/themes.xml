@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.Einthusan" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>

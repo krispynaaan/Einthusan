@@ -1,0 +1,2817 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+app/.gitignore
+app/build.gradle.kts
+app/proguard-rules.pro
+app/src/main/AndroidManifest.xml
+app/src/main/java/com/example/einthusan/data/Constants.kt
+app/src/main/java/com/example/einthusan/data/EinthusanRepository.kt
+app/src/main/java/com/example/einthusan/data/Movie.kt
+app/src/main/java/com/example/einthusan/data/TmdbApi.kt
+app/src/main/java/com/example/einthusan/data/TokenScraper.kt
+app/src/main/java/com/example/einthusan/MainActivity.kt
+app/src/main/java/com/example/einthusan/ui/Components.kt
+app/src/main/java/com/example/einthusan/ui/screens/DetailsScreen.kt
+app/src/main/java/com/example/einthusan/ui/screens/DetailsViewModel.kt
+app/src/main/java/com/example/einthusan/ui/screens/HomeScreen.kt
+app/src/main/java/com/example/einthusan/ui/screens/HomeViewModel.kt
+app/src/main/java/com/example/einthusan/ui/screens/PlayerScreen.kt
+app/src/main/java/com/example/einthusan/ui/screens/PlayerViewModel.kt
+app/src/main/java/com/example/einthusan/ui/screens/SearchScreen.kt
+app/src/main/java/com/example/einthusan/ui/screens/SearchViewModel.kt
+app/src/main/java/com/example/einthusan/ui/theme/Color.kt
+app/src/main/java/com/example/einthusan/ui/theme/Theme.kt
+app/src/main/java/com/example/einthusan/ui/theme/Type.kt
+app/src/main/res/values/strings.xml
+app/src/main/res/values/themes.xml
+build.gradle.kts
+gradle.properties
+gradle/libs.versions.toml
+gradle/wrapper/gradle-wrapper.properties
+gradlew
+gradlew.bat
+settings.gradle.kts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+</file>
+
+<file path="app/.gitignore">
+/build
+</file>
+
+<file path="app/build.gradle.kts">
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
+
+android {
+    namespace = "com.example.einthusan"
+    compileSdk {
+        version = release(36)
+    }
+
+    defaultConfig {
+        applicationId = "com.example.einthusan"
+        minSdk = 23
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        compose = true
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.tv.foundation)
+    implementation(libs.androidx.tv.material)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Networking & Parsing
+    implementation(libs.okhttp)
+    implementation(libs.jsoup)
+
+    // Image Loading
+    implementation(libs.coil.compose)
+
+    // Video Playback (Media3)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.hls)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+}
+</file>
+
+<file path="app/proguard-rules.pro">
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+</file>
+
+<file path="app/src/main/AndroidManifest.xml">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:banner="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Einthusan">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/data/Constants.kt">
+package com.example.einthusan.data
+
+object Constants {
+    const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    const val BASE_URL = "https://einthusan.tv"
+    const val SEARCH_BASE_URL = "https://einthusan.tv/movie/results/?lang=tamil&query="
+
+    // --- TMDB CONFIGURATION ---
+    // GET KEY HERE: https://www.themoviedb.org/settings/api
+    const val TMDB_API_KEY = "3cb45b83863284d1fbf883f628852cd8"
+    const val TMDB_BASE_URL = "https://api.themoviedb.org/3/"
+    const val TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original" // High Res
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/data/EinthusanRepository.kt">
+package com.example.einthusan.data
+
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jsoup.Jsoup
+import java.io.IOException
+import java.net.URLEncoder
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
+
+class EinthusanRepository {
+
+    // 1. TIMEOUTS: Increased to 30s to handle slow emulator networks
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
+        .build()
+
+    // 2. RATE LIMITER: Reduced to 3 to prevent choking the network
+    private val requestSemaphore = Semaphore(3)
+
+    private val TAG = "EinthusanRepo"
+    private val LANGUAGES = listOf("tamil", "telugu", "hindi")
+
+    data class HomeData(
+        val featuredMovies: List<Movie>,
+        val categories: Map<String, List<Movie>>
+    )
+
+    // --- 1. SEARCH FUNCTION ---
+    suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
+        val encodedQuery = URLEncoder.encode(query, "UTF-8")
+
+        val rawResults = LANGUAGES.map { lang ->
+            async {
+                requestSemaphore.withPermit {
+                    scrapeSearchForLang(lang, encodedQuery)
+                }
+            }
+        }.awaitAll()
+
+        return@withContext mergeAndSort(rawResults.flatten())
+    }
+
+    private fun scrapeSearchForLang(lang: String, query: String): List<Movie> {
+        val url = "https://einthusan.tv/movie/results/?lang=$lang&query=$query"
+        val movies = mutableListOf<Movie>()
+        try {
+            val doc = fetchDocument(url) // Uses Retry Logic
+            val elements = doc.select("#UIMovieSummary ul li")
+            for (element in elements) {
+                try {
+                    var title = element.select(".block2 .title h3").text()
+                    if (title.isEmpty()) title = element.select("h3").text()
+
+                    var link = element.select("a.title").attr("href")
+                    if (link.isEmpty()) link = element.select(".block2 a").attr("href")
+
+                    var thumb = element.select(".block1 img").attr("src")
+                    var synopsis = element.select(".block2 .synopsis").text()
+
+                    val infoText = element.select(".block2 .info").text()
+                    val year = """(19|20)\d{2}""".toRegex().find(infoText)?.value ?: ""
+
+                    if (link.startsWith("/")) link = "${Constants.BASE_URL}$link"
+                    if (thumb.startsWith("//")) thumb = "https:$thumb"
+
+                    if (title.isNotEmpty() && link.isNotEmpty()) {
+                        val displayLang = lang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                        movies.add(Movie(
+                            title = title,
+                            imageUrl = thumb,
+                            videoPageUrl = link,
+                            synopsis = synopsis,
+                            year = year,
+                            languages = listOf(displayLang),
+                            videoUrls = mapOf(displayLang to link)
+                        ))
+                    }
+                } catch (e: Exception) { }
+            }
+        } catch (e: Exception) { Log.e(TAG, "Search fail for $lang: ${e.message}") }
+        return movies
+    }
+
+    // --- 2. HOME PAGE FUNCTION ---
+    suspend fun fetchHomeData(): HomeData = withContext(Dispatchers.IO) {
+        // 1. Scrape all 3 Home Pages (With Retries & Throttle)
+        val deferredResults = LANGUAGES.map { lang ->
+            async {
+                try {
+                    requestSemaphore.withPermit { scrapeHomeForLang(lang) }
+                } catch (e: Exception) {
+                    Log.e(TAG, "CRITICAL: Failed to scrape $lang Home: ${e.message}")
+                    HomeData(emptyList(), emptyMap()) // Return empty if all retries fail
+                }
+            }
+        }
+        val results = deferredResults.awaitAll()
+
+        val allFeatured = results.flatMap { it.featuredMovies }
+        val allCategoriesMap = mutableMapOf<String, MutableList<Movie>>()
+
+        results.forEach { result ->
+            result.categories.forEach { (catTitle, movies) ->
+                if (!allCategoriesMap.containsKey(catTitle)) {
+                    allCategoriesMap[catTitle] = mutableListOf()
+                }
+                allCategoriesMap[catTitle]?.addAll(movies)
+            }
+        }
+
+        // 2. MERGE & DEDUPLICATE (Consolidated from T/Te/Hi home pages)
+        val uniqueFeatured = mergeAndSort(allFeatured)
+
+        // 3. Enrich with TMDB (Images Only, NO Deep Search for performance)
+        val finalFeatured = uniqueFeatured.map { movie ->
+            async { enrichMovieWithTmdb(movie) }
+        }.awaitAll()
+
+        // 4. Final Sort by Rating
+        val sortedFeatured = finalFeatured.sortedByDescending { parseRating(it.rating) }
+
+        // 5. Process Categories
+        val finalCategories = mutableMapOf<String, List<Movie>>()
+        allCategoriesMap.forEach { (catTitle, movies) ->
+            val merged = mergeAndSort(movies)
+            finalCategories[catTitle] = merged.sortedByDescending { parseRating(it.rating) }
+        }
+
+        return@withContext HomeData(sortedFeatured, finalCategories)
+    }
+
+    private fun scrapeHomeForLang(lang: String): HomeData {
+        val url = "${Constants.BASE_URL}/movie/browse/?lang=$lang"
+        val featuredList = mutableListOf<Movie>()
+        val categoryMap = mutableMapOf<String, List<Movie>>()
+
+        try {
+            val doc = fetchDocument(url) // Uses Retry Logic
+            val displayLang = lang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+            // Featured
+            val featuredElements = doc.select("#UIFeaturedFilms .tabview")
+            for (element in featuredElements) {
+                try {
+                    val title = element.select(".block2 h2").text()
+                    var link = element.select(".block2 .title").attr("href")
+                    var thumb = element.select(".block1 img").attr("src")
+
+                    val infoBlock = element.selectFirst(".block2 .info p")
+                    val rawInfoText = infoBlock?.text() ?: ""
+                    val year = """(19|20)\d{2}""".toRegex().find(rawInfoText)?.value ?: ""
+                    val synopsis = element.select(".block2 .desc").text()
+
+                    val ratingsMap = mutableMapOf<String, Double>()
+                    element.select(".average-rating li").forEach { el ->
+                        val label = el.selectFirst("label")?.text() ?: ""
+                        val valueStr = el.selectFirst("p")?.attr("data-value") ?: el.selectFirst("p")?.text()
+                        val value = valueStr?.toDoubleOrNull() ?: 0.0
+                        ratingsMap[label] = value
+                    }
+                    val calculatedRating = calculateWeightedRating(ratingsMap)
+
+                    if (link.startsWith("/")) link = "${Constants.BASE_URL}$link"
+                    if (thumb.startsWith("//")) thumb = "https:$thumb"
+
+                    if (title.isNotEmpty()) {
+                        featuredList.add(Movie(
+                            title = title,
+                            imageUrl = thumb,
+                            videoPageUrl = link,
+                            synopsis = synopsis,
+                            year = year,
+                            rating = calculatedRating,
+                            languages = listOf(displayLang),
+                            videoUrls = mapOf(displayLang to link)
+                        ))
+                    }
+                } catch (e: Exception) { }
+            }
+
+            // Categories
+            val categoryTitles = doc.select("#UIShowcasedFilms .tabbing ul li label p").map { it.text() }
+            val categoryContents = doc.select("#UIShowcasedFilms > .tabbing > .tabview")
+
+            categoryTitles.forEachIndexed { index, title ->
+                if (index < categoryContents.size) {
+                    val categoryElement = categoryContents[index]
+                    val movies = mutableListOf<Movie>()
+                    val items = categoryElement.select("ul li")
+                    for (item in items) {
+                        try {
+                            val t = item.select("a.title").text()
+                            var l = item.select("a.title").attr("href")
+                            var th = item.select("img").attr("src")
+                            if (l.startsWith("/")) l = "${Constants.BASE_URL}$l"
+                            if (th.startsWith("//")) th = "https:$th"
+                            if (t.isNotEmpty()) {
+                                movies.add(Movie(
+                                    title = t,
+                                    imageUrl = th,
+                                    videoPageUrl = l,
+                                    synopsis = "",
+                                    year = "",
+                                    languages = listOf(displayLang),
+                                    videoUrls = mapOf(displayLang to l)
+                                ))
+                            }
+                        } catch (e: Exception) { }
+                    }
+                    if (movies.isNotEmpty()) categoryMap[title] = movies
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Scrape logic failed inside $lang: ${e.message}")
+            throw e // Re-throw to trigger retry logic in fetchDocument if needed, or logging in fetchHomeData
+        }
+
+        return HomeData(featuredList, categoryMap)
+    }
+
+    // --- CORE LOGIC: MERGE & SORT ---
+    private fun mergeAndSort(movies: List<Movie>): List<Movie> {
+        val mergedList = mutableListOf<Movie>()
+
+        for (incoming in movies) {
+            val normTitle = incoming.title.lowercase().trim()
+
+            // Fuzzy match: Title Match + (Year Match OR one is missing)
+            val matchIndex = mergedList.indexOfFirst { existing ->
+                val existingTitle = existing.title.lowercase().trim()
+                val titleMatch = existingTitle == normTitle
+                val yearMatch = (existing.year.isEmpty() || incoming.year.isEmpty() || existing.year == incoming.year)
+                titleMatch && yearMatch
+            }
+
+            if (matchIndex != -1) {
+                // MERGE
+                val existing = mergedList[matchIndex]
+
+                val newLanguages = (existing.languages + incoming.languages).distinct()
+                val newUrls = existing.videoUrls + incoming.videoUrls
+
+                // Keep best metadata
+                val bestYear = if (existing.year.isNotEmpty()) existing.year else incoming.year
+                val bestRating = if (existing.rating.isNotEmpty() && existing.rating != "N/A") existing.rating else incoming.rating
+                val bestBackdrop = if (existing.backdropUrl != existing.imageUrl) existing.backdropUrl else incoming.backdropUrl
+                val bestSynopsis = if (existing.synopsis.length > incoming.synopsis.length) existing.synopsis else incoming.synopsis
+
+                mergedList[matchIndex] = existing.copy(
+                    year = bestYear,
+                    rating = bestRating,
+                    backdropUrl = bestBackdrop,
+                    synopsis = bestSynopsis,
+                    languages = newLanguages,
+                    videoUrls = newUrls
+                )
+            } else {
+                mergedList.add(incoming)
+            }
+        }
+
+        // Sort by Rating (High -> Low)
+        return mergedList.sortedByDescending { parseRating(it.rating) }
+    }
+
+    private fun parseRating(ratingStr: String): Double {
+        if (ratingStr.isEmpty() || ratingStr == "N/A") return 0.0
+        return ratingStr.replace("★", "").trim().toDoubleOrNull() ?: 0.0
+    }
+
+    // --- 3. MOVIE DETAILS ---
+    suspend fun getMovieDetails(videoPageUrl: String): MovieDetails = withContext(Dispatchers.IO) {
+        val scrapedData = try {
+            requestSemaphore.withPermit { scrapeEinthusanDetails(videoPageUrl) }
+        } catch (e: Exception) { throw e }
+
+        val currentLang = scrapedData.languages.firstOrNull() ?: "Tamil"
+
+        val siblings = searchMovies(scrapedData.title)
+        val matches = siblings.filter {
+            it.title.trim().equals(scrapedData.title.trim(), ignoreCase = true) &&
+                    (it.year.isEmpty() || scrapedData.year.isEmpty() || it.year == scrapedData.year)
+        }
+
+        var finalLanguages = scrapedData.languages
+        var finalUrls = scrapedData.videoUrls.toMutableMap()
+        finalUrls[currentLang] = videoPageUrl
+
+        matches.forEach { match ->
+            finalLanguages = (finalLanguages + match.languages).distinct()
+            finalUrls.putAll(match.videoUrls)
+        }
+
+        var finalRating = scrapedData.rating
+        var finalCover = scrapedData.coverUrl
+        var finalBackdrop = scrapedData.backdropUrl
+        var finalSynopsis = scrapedData.synopsis
+
+        if (Constants.TMDB_API_KEY != "YOUR_TMDB_API_KEY_HERE") {
+            try {
+                val searchResponse = TmdbClient.api.searchMovie(Constants.TMDB_API_KEY, scrapedData.title, scrapedData.year)
+                var tmdbMatch = searchResponse.results.find { it.original_language == "ta" }
+                if (tmdbMatch == null) tmdbMatch = searchResponse.results.firstOrNull()
+
+                if (tmdbMatch != null) {
+                    val details = TmdbClient.api.getMovieDetails(tmdbMatch.id, Constants.TMDB_API_KEY)
+                    if (finalRating.isEmpty() || finalRating == "N/A") {
+                        if (details.vote_average > 0.0) finalRating = String.format("★ %.1f", details.vote_average)
+                    }
+                    if (details.poster_path != null) finalCover = "${Constants.TMDB_IMAGE_BASE}${details.poster_path}"
+                    if (details.backdrop_path != null) finalBackdrop = "${Constants.TMDB_IMAGE_BASE}${details.backdrop_path}"
+                    if (!details.overview.isNullOrEmpty()) finalSynopsis = details.overview
+                }
+            } catch (e: Exception) { Log.e(TAG, "TMDB Detail Failed: ${e.message}") }
+        }
+
+        return@withContext scrapedData.copy(
+            rating = finalRating,
+            coverUrl = finalCover,
+            backdropUrl = finalBackdrop,
+            synopsis = finalSynopsis,
+            languages = finalLanguages,
+            videoUrls = finalUrls
+        )
+    }
+
+    private suspend fun enrichMovieWithTmdb(movie: Movie): Movie {
+        var enriched = movie
+        if (Constants.TMDB_API_KEY == "YOUR_TMDB_API_KEY_HERE") return enriched
+
+        try {
+            val searchRes = TmdbClient.api.searchMovie(Constants.TMDB_API_KEY, movie.title, movie.year)
+            var match = searchRes.results.find { it.original_language == "ta" }
+            if (match == null) match = searchRes.results.firstOrNull()
+
+            if (match != null) {
+                val details = TmdbClient.api.getMovieDetails(match.id, Constants.TMDB_API_KEY, "")
+                val tmdbRating = if (details.vote_average > 0.0) String.format("★ %.1f", details.vote_average) else ""
+                val tmdbYear = details.release_date?.take(4) ?: ""
+
+                val finalRating = if (enriched.rating.isNotEmpty() && enriched.rating != "N/A") enriched.rating else tmdbRating
+
+                enriched = enriched.copy(
+                    imageUrl = if (details.poster_path != null) "${Constants.TMDB_IMAGE_BASE}${details.poster_path}" else movie.imageUrl,
+                    backdropUrl = if (details.backdrop_path != null) "${Constants.TMDB_IMAGE_BASE}${details.backdrop_path}" else movie.imageUrl,
+                    synopsis = if (!details.overview.isNullOrEmpty()) details.overview else movie.synopsis,
+                    rating = finalRating,
+                    year = if (movie.year.isEmpty()) tmdbYear else movie.year
+                )
+            }
+        } catch (e: Exception) { }
+
+        if (enriched.rating.isEmpty()) {
+            try {
+                requestSemaphore.withPermit {
+                    val fallbackUrl = enriched.videoUrls.values.firstOrNull()
+                    if (fallbackUrl != null) {
+                        val internal = scrapeEinthusanDetails(fallbackUrl)
+                        if (internal.rating.isNotEmpty() && internal.rating != "N/A") {
+                            enriched = enriched.copy(rating = internal.rating.replace("★", "").trim())
+                        }
+                    }
+                }
+            } catch (e: Exception) {}
+        }
+        return enriched
+    }
+
+    private fun scrapeEinthusanDetails(videoPageUrl: String): MovieDetails {
+        val doc = fetchDocument(videoPageUrl)
+        val summary = doc.selectFirst("#UIMovieSummary") ?: throw IOException("Parse Error")
+
+        val title = summary.selectFirst(".block2 a.title h3")?.text() ?: summary.selectFirst("h3")?.text() ?: "Unknown"
+        var coverUrl = doc.select("meta[property=og:image]").attr("content")
+        if (coverUrl.isEmpty()) coverUrl = summary.selectFirst(".block1 img")?.attr("src") ?: ""
+        if (coverUrl.startsWith("//")) coverUrl = "https:$coverUrl"
+        else if (coverUrl.startsWith("/")) coverUrl = "${Constants.BASE_URL}$coverUrl"
+
+        val synopsis = summary.selectFirst("p.synopsis")?.text() ?: ""
+
+        val ratingsMap = mutableMapOf<String, Double>()
+        summary.select(".average-rating li").forEach { el ->
+            val label = el.selectFirst("label")?.text() ?: ""
+            val valueStr = el.selectFirst("p")?.attr("data-value") ?: el.selectFirst("p")?.text()
+            val value = valueStr?.toDoubleOrNull() ?: 0.0
+            ratingsMap[label] = value
+        }
+        val rating = calculateWeightedRating(ratingsMap)
+
+        val infoBlock = summary.selectFirst(".info p")
+        val rawInfoText = infoBlock?.text() ?: ""
+        val year = """(19|20)\d{2}""".toRegex().find(rawInfoText)?.value ?: ""
+
+        val langRaw = infoBlock?.select("span")?.text() ?: "Tamil"
+        val langText = langRaw.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+        val castList = mutableListOf<CastMember>()
+        val profs = summary.select(".professionals .prof")
+        for (prof in profs) {
+            val name = prof.select("p").text()
+            val role = prof.select("label").text()
+            var img = prof.parent()?.select("img")?.attr("src") ?: ""
+            if (img.startsWith("//")) img = "https:$img"
+            if (name.isNotEmpty()) castList.add(CastMember(name, img, role))
+        }
+
+        return MovieDetails(
+            title = title, coverUrl = coverUrl, backdropUrl = coverUrl, synopsis = synopsis,
+            year = year, rating = rating, genres = emptyList(), cast = castList,
+            languages = listOf(langText), videoUrls = mapOf(langText to videoPageUrl)
+        )
+    }
+
+    private fun calculateWeightedRating(ratingsMap: Map<String, Double>): String {
+        val sStory = ratingsMap["Storyline"] ?: 0.0
+        val sPerf = ratingsMap["Performance"] ?: 0.0
+        val sAction = ratingsMap["Action"] ?: 0.0
+        val sComedy = ratingsMap["Comedy"] ?: 0.0
+        val sRomance = ratingsMap["Romance"] ?: 0.0
+
+        fun calcActivation(score: Double) = max(0.0, (score - 2.5) / 2.5)
+        val wActionRaw = 0.10 * calcActivation(sAction)
+        val wComedyRaw = 0.10 * calcActivation(sComedy)
+        val wRomanceRaw = 0.10 * calcActivation(sRomance)
+        val totalWeight = 0.35 + 0.35 + wActionRaw + wComedyRaw + wRomanceRaw
+
+        return if (totalWeight > 0.0) {
+            val weightedSum = (sStory * 0.35 + sPerf * 0.35 + sAction * wActionRaw + sComedy * wComedyRaw + sRomance * wRomanceRaw) / totalWeight
+            String.format("★ %.1f", weightedSum * 2)
+        } else "N/A"
+    }
+
+    // --- ROBUST FETCH WITH RETRY ---
+    private fun fetchDocument(url: String): org.jsoup.nodes.Document {
+        var attempt = 0
+        var lastException: Exception? = null
+
+        while (attempt < 3) {
+            try {
+                val request = Request.Builder()
+                    .url(url)
+                    .header("User-Agent", Constants.USER_AGENT)
+                    .build()
+
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    val body = response.body?.string() ?: ""
+                    return Jsoup.parse(body)
+                } else {
+                    response.close()
+                }
+            } catch (e: Exception) {
+                lastException = e
+                Log.w(TAG, "Attempt ${attempt+1} failed for $url: ${e.message}")
+            }
+            attempt++
+            Thread.sleep(1000) // Backoff
+        }
+        throw lastException ?: IOException("Failed to fetch $url after 3 attempts")
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/data/Movie.kt">
+package com.example.einthusan.data
+
+data class Movie(
+    val title: String,
+    val imageUrl: String,
+    val videoPageUrl: String,
+    val synopsis: String,
+    val year: String = "",
+    val rating: String = "",
+    val backdropUrl: String = imageUrl,
+    // Multi-language support
+    val languages: List<String> = emptyList(),
+    val videoUrls: Map<String, String> = emptyMap()
+)
+
+data class MovieDetails(
+    val title: String,
+    val coverUrl: String,
+    val backdropUrl: String,
+    val synopsis: String,
+    val year: String,
+    val rating: String,
+    val genres: List<String>,
+    val cast: List<CastMember>,
+    // Multi-language support for Details Screen
+    val languages: List<String>,
+    val videoUrls: Map<String, String>
+)
+
+data class CastMember(
+    val name: String,
+    val imageUrl: String,
+    val role: String
+)
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/data/TmdbApi.kt">
+package com.example.einthusan.data
+
+import com.google.gson.annotations.SerializedName
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+
+// --- API INTERFACE ---
+interface TmdbApi {
+    @GET("search/movie")
+    suspend fun searchMovie(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("year") year: String
+    ): TmdbSearchResponse
+
+    @GET("movie/{movie_id}")
+    suspend fun getMovieDetails(
+        @Path("movie_id") id: Int,
+        @Query("api_key") apiKey: String,
+        @Query("append_to_response") append: String = "credits"
+    ): TmdbMovieFullDetails
+}
+
+// --- DATA MODELS (Fixed with SerializedName) ---
+data class TmdbSearchResponse(
+    @SerializedName("results") val results: List<TmdbSearchResult>
+)
+
+data class TmdbSearchResult(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("release_date") val release_date: String?,
+    @SerializedName("original_language") val original_language: String?
+)
+
+data class TmdbMovieFullDetails(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("overview") val overview: String?,
+    @SerializedName("poster_path") val poster_path: String?,
+    @SerializedName("backdrop_path") val backdrop_path: String?,
+    @SerializedName("vote_average") val vote_average: Double,
+    @SerializedName("release_date") val release_date: String?,
+    @SerializedName("original_language") val original_language: String?,
+    @SerializedName("genres") val genres: List<TmdbGenre>?,
+    @SerializedName("credits") val credits: TmdbCredits?
+)
+
+data class TmdbGenre(
+    @SerializedName("name") val name: String
+)
+
+data class TmdbCredits(
+    @SerializedName("cast") val cast: List<TmdbCastMember>?
+)
+
+data class TmdbCastMember(
+    @SerializedName("name") val name: String,
+    @SerializedName("character") val character: String?,
+    @SerializedName("profile_path") val profile_path: String?
+)
+
+// --- CLIENT ---
+object TmdbClient {
+    // Unsafe Client to bypass SSL errors on Emulators
+    private fun getUnsafeOkHttpClient(): OkHttpClient {
+        try {
+            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            })
+
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, SecureRandom())
+
+            return OkHttpClient.Builder()
+                .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+                .hostnameVerifier { _, _ -> true }
+                .build()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    val api: TmdbApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(Constants.TMDB_BASE_URL)
+            .client(getUnsafeOkHttpClient())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(TmdbApi::class.java)
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/data/TokenScraper.kt">
+package com.example.einthusan.data
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+
+class TokenScraper(private val context: Context) {
+
+    @SuppressLint("SetJavaScriptEnabled")
+    suspend fun scrapeStreamUrl(videoPageUrl: String): String = withContext(Dispatchers.Main) {
+        suspendCancellableCoroutine { continuation ->
+            // Initialize invisible WebView
+            val webView = WebView(context).apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.userAgentString = Constants.USER_AGENT
+
+                // 1x1 pixel size effectively invisible but still renders
+                layoutParams = ViewGroup.LayoutParams(1, 1)
+            }
+
+            var resultFound = false
+
+            webView.webViewClient = object : WebViewClient() {
+                override fun shouldInterceptRequest(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): android.webkit.WebResourceResponse? {
+                    val url = request?.url.toString()
+
+                    // The Intercept Condition
+                    if (url.contains(".m3u8") && url.contains("cdn") && !resultFound) {
+                        resultFound = true
+
+                        // We found it! Resume the coroutine
+                        continuation.resume(url)
+
+                        // Cleanup on Main thread
+                        view?.post {
+                            view.stopLoading()
+                            view.destroy()
+                        }
+                    }
+                    return super.shouldInterceptRequest(view, request)
+                }
+            }
+
+            // Start loading
+            webView.loadUrl(videoPageUrl)
+
+            // Safety timeout (optional but recommended in production) could be added here
+
+            // Handle coroutine cancellation to clean up WebView
+            continuation.invokeOnCancellation {
+                webView.stopLoading()
+                webView.destroy()
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/MainActivity.kt">
+package com.example.einthusan
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
+import com.example.einthusan.ui.screens.HomeScreen
+import com.example.einthusan.ui.screens.PlayerScreen
+import com.example.einthusan.ui.screens.SearchScreen
+import com.example.einthusan.ui.theme.EinthusanTheme
+import com.example.einthusan.ui.screens.DetailsScreen
+
+class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalTvMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            EinthusanTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RectangleShape,
+                    colors = SurfaceDefaults.colors(containerColor = Color.Black)
+                ) {
+                    val navController = rememberNavController()
+
+NavHost(navController = navController, startDestination = "home") {
+                        
+                        // 1. HOME
+                        composable("home") {
+                            HomeScreen(
+                                // CLICKING A MOVIE NOW GOES TO DETAILS, NOT PLAYER
+                                onMovieClick = { encodedUrl ->
+                                    navController.navigate("details/$encodedUrl")
+                                },
+                                onSearchClick = {
+                                    navController.navigate("search")
+                                }
+                            )
+                        }
+
+                        // 2. SEARCH
+                        composable("search") {
+                            SearchScreen(
+                                // CLICKING A MOVIE IN SEARCH ALSO GOES TO DETAILS
+                                onMovieClick = { encodedUrl ->
+                                    navController.navigate("details/$encodedUrl")
+                                }
+                            )
+                        }
+
+                        // 3. DETAILS (NEW!)
+                        composable(
+                            route = "details/{videoUrl}",
+                            arguments = listOf(navArgument("videoUrl") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
+                            DetailsScreen(
+                                videoUrl = videoUrl,
+                                onPlayClick = { url ->
+                                    // Encoding again might be double-encoding, usually safe to pass 'url' 
+                                    // if the player route expects encoded string.
+                                    // Since 'url' comes from our scraped data (unencoded), 
+                                    // we should encode it before passing to route 'player/{url}'.
+                                    val encoded = java.net.URLEncoder.encode(url, "UTF-8")
+                                    navController.navigate("player/$encoded")
+                                }
+                            )
+                        }
+                        
+                        // 4. PLAYER
+                        composable(
+                            route = "player/{videoUrl}",
+                            arguments = listOf(navArgument("videoUrl") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
+                            PlayerScreen(videoPageUrl = videoUrl)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/Components.kt">
+package com.example.einthusan.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.SpaceBar
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged // FIX: Added this import
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.tv.material3.*
+
+@Composable
+fun VirtualKeyboard(
+    onKeyPress: (Char) -> Unit,
+    onBackspace: () -> Unit,
+    onSpace: () -> Unit,
+    onClear: () -> Unit
+) {
+    val keys = listOf(
+        "A", "B", "C", "D", "E", "F",
+        "G", "H", "I", "J", "K", "L",
+        "M", "N", "O", "P", "Q", "R",
+        "S", "T", "U", "V", "W", "X",
+        "Y", "Z", "1", "2", "3", "4",
+        "5", "6", "7", "8", "9", "0"
+    )
+
+    Column(
+        modifier = Modifier.width(300.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Keys Grid
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            keys.forEach { key ->
+                KeyboardKey(
+                    label = key,
+                    onClick = { onKeyPress(key.first()) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Action Keys Row
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Space Key
+            ActionKey(
+                icon = Icons.Default.SpaceBar,
+                label = "Space",
+                onClick = onSpace,
+                modifier = Modifier.weight(1f)
+            )
+            // Backspace Key
+            ActionKey(
+                icon = Icons.AutoMirrored.Filled.Backspace,
+                label = "Back",
+                onClick = onBackspace,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Clear Button
+        Button(
+            onClick = onClear,
+            colors = ButtonDefaults.colors(
+                containerColor = Color.DarkGray.copy(alpha = 0.5f),
+                contentColor = Color.White
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Clear Search")
+        }
+    }
+}
+
+@Composable
+fun KeyboardKey(
+    label: String,
+    onClick: () -> Unit
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(
+                if (isFocused) Color.White else Color.DarkGray.copy(alpha = 0.4f)
+            )
+            .onFocusChanged { isFocused = it.isFocused }
+            .clickable(onClick = onClick)
+            .focusable()
+    ) {
+        Text(
+            text = label,
+            color = if (isFocused) Color.Black else Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun ActionKey(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .height(40.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(
+                if (isFocused) Color.White else Color.DarkGray.copy(alpha = 0.4f)
+            )
+            .onFocusChanged { isFocused = it.isFocused }
+            .clickable(onClick = onClick)
+            .focusable()
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (isFocused) Color.Black else Color.White,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/DetailsScreen.kt">
+package com.example.einthusan.ui.screens
+
+import android.graphics.Bitmap
+import android.graphics.Color as AndroidColor
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.tv.material3.*
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Size
+import coil.transform.Transformation
+import com.example.einthusan.data.CastMember
+import com.example.einthusan.data.MovieDetails
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun DetailsScreen(
+    videoUrl: String,
+    onPlayClick: (String) -> Unit,
+    viewModel: DetailsViewModel = viewModel()
+) {
+    val details by viewModel.details.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val playButtonRequester = remember { FocusRequester() }
+
+    var isPlayLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(videoUrl) {
+        viewModel.loadDetails(videoUrl)
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        if (isLoading || details == null) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color.Red)
+        } else {
+            val movie = details!!
+
+            AsyncImage(
+                model = movie.backdropUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().alpha(0.4f),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(colors = listOf(Color.Black, Color.Black.copy(alpha = 0.8f), Color.Transparent), endX = 1500f)))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 50.dp, top = 50.dp, bottom = 50.dp)
+            ) {
+                item {
+                    MovieInfoSection(
+                        movie = movie,
+                        onPlayClick = { url ->
+                            isPlayLoading = true
+                            onPlayClick(url)
+                        },
+                        focusRequester = playButtonRequester,
+                        isPlayLoading = isPlayLoading
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Text("Cast", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 15.dp))
+                    CastRow(cast = movie.cast)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun MovieInfoSection(
+    movie: MovieDetails,
+    onPlayClick: (String) -> Unit,
+    focusRequester: FocusRequester,
+    isPlayLoading: Boolean
+) {
+    Column(modifier = Modifier.width(600.dp)) {
+        Text(text = movie.title, style = MaterialTheme.typography.displayMedium, color = Color.White, fontWeight = FontWeight.ExtraBold)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = movie.year, color = Color.Green, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(Color.DarkGray, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
+                Icon(Icons.Default.Star, null, tint = Color.Yellow, modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = movie.rating.replace("★", "").trim(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = movie.languages.joinToString(", "), color = Color.Gray)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        if (movie.genres.isNotEmpty()) {
+            Text(text = movie.genres.joinToString(" | "), color = Color(0xFFCCCCCC), fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        Text(text = movie.synopsis, color = Color.LightGray, style = MaterialTheme.typography.bodyLarge, maxLines = 4)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (isPlayLoading) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(color = Color.Red, modifier = Modifier.size(32.dp))
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Loading...", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                val sortedLangs = movie.videoUrls.keys.sortedBy {
+                    when(it.lowercase()) { "tamil"->0; "telugu"->1; "hindi"->2; "malayalam"->3; else->9 }
+                }
+
+                sortedLangs.forEachIndexed { index, lang ->
+                    val url = movie.videoUrls[lang] ?: return@forEachIndexed
+
+                    var isFocused by remember { mutableStateOf(false) }
+                    val scale by animateFloatAsState(if (isFocused) 1.15f else 1f, label = "scale")
+
+                    val baseColor = when(lang.lowercase()) {
+                        "tamil" -> Color(0xFF1976D2)
+                        "telugu" -> Color(0xFFC62828)
+                        "hindi" -> Color(0xFFEF6C00)
+                        else -> Color(0xFF455A64)
+                    }
+                    val containerColor = if (isFocused) Color.White else baseColor
+                    val contentColor = if (isFocused) Color.Black else Color.White
+
+                    Button(
+                        onClick = { onPlayClick(url) },
+                        modifier = (if (index == 0) Modifier.focusRequester(focusRequester) else Modifier)
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .scale(scale),
+                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor)
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Play $lang")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CastRow(cast: List<CastMember>) {
+    if (cast.isEmpty()) { Text("No cast information available", color = Color.Gray); return }
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        // Fixed PaddingValues by using consistent arguments
+        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp, end = 50.dp)
+    ) {
+        items(cast) { member -> CastMemberCard(member) }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun CastMemberCard(member: CastMember) {
+    var isFocused by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(if (isFocused) 1.1f else 1f, label = "scale")
+    val borderColor = if (isFocused) Color.White else Color.Transparent
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(100.dp).scale(scale).onFocusChanged { isFocused = it.isFocused }.clickable(onClick = {})) {
+        Box(modifier = Modifier.size(80.dp).border(2.dp, borderColor, CircleShape).clip(CircleShape).background(Color.DarkGray)) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).data(member.imageUrl).crossfade(true).transformations(SharpenTransformation(LocalContext.current)).build(),
+                contentDescription = member.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = member.name, color = if (isFocused) Color.White else Color.LightGray, fontSize = 12.sp, maxLines = 1, fontWeight = if (isFocused) FontWeight.Bold else FontWeight.Normal, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Text(text = member.role, color = Color.Gray, fontSize = 10.sp, maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    }
+}
+
+class SharpenTransformation(private val context: android.content.Context) : Transformation {
+    override val cacheKey: String = "sharpen_upscale"
+    override suspend fun transform(input: Bitmap, size: Size): Bitmap = withContext(Dispatchers.IO) {
+        val width = input.width; val height = input.height
+        val scaleFactor = if (width < 100) 2.0f else 1.0f
+        if (scaleFactor == 1.0f) return@withContext input
+        val newWidth = (width * scaleFactor).toInt(); val newHeight = (height * scaleFactor).toInt()
+        val scaledBitmap = Bitmap.createScaledBitmap(input, newWidth, newHeight, true)
+        return@withContext applySharpenEffect(scaledBitmap)
+    }
+    private fun applySharpenEffect(src: Bitmap): Bitmap {
+        val width = src.width; val height = src.height
+        val config = src.config ?: Bitmap.Config.ARGB_8888
+        val result = Bitmap.createBitmap(width, height, config)
+        val pixels = IntArray(width * height); src.getPixels(pixels, 0, width, 0, 0, width, height)
+        val newPixels = IntArray(width * height)
+        for (y in 1 until height - 1) {
+            for (x in 1 until width - 1) {
+                val centerIndex = y * width + x; val top = (y - 1) * width + x; val bottom = (y + 1) * width + x; val left = y * width + (x - 1); val right = y * width + (x + 1)
+                val pCenter = pixels[centerIndex]; val pTop = pixels[top]; val pBottom = pixels[bottom]; val pLeft = pixels[left]; val pRight = pixels[right]
+                var r = (AndroidColor.red(pCenter) * 5) - (AndroidColor.red(pTop) + AndroidColor.red(pBottom) + AndroidColor.red(pLeft) + AndroidColor.red(pRight))
+                var g = (AndroidColor.green(pCenter) * 5) - (AndroidColor.green(pTop) + AndroidColor.green(pBottom) + AndroidColor.green(pLeft) + AndroidColor.green(pRight))
+                var b = (AndroidColor.blue(pCenter) * 5) - (AndroidColor.blue(pTop) + AndroidColor.blue(pBottom) + AndroidColor.blue(pLeft) + AndroidColor.blue(pRight))
+                r = r.coerceIn(0, 255); g = g.coerceIn(0, 255); b = b.coerceIn(0, 255)
+                newPixels[centerIndex] = AndroidColor.rgb(r, g, b)
+            }
+        }
+        result.setPixels(newPixels, 0, width, 0, 0, width, height)
+        return result
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/DetailsViewModel.kt">
+package com.example.einthusan.ui.screens
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.einthusan.data.EinthusanRepository
+import com.example.einthusan.data.MovieDetails
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class DetailsViewModel : ViewModel() {
+    private val repository = EinthusanRepository()
+
+    private val _details = MutableStateFlow<MovieDetails?>(null)
+    val details = _details.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+    fun loadDetails(videoUrl: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val data = repository.getMovieDetails(videoUrl)
+                _details.value = data
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/HomeScreen.kt">
+package com.example.einthusan.ui.screens
+
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.tv.material3.Carousel
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import coil.compose.AsyncImage
+import com.example.einthusan.data.Movie
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import kotlinx.coroutines.delay
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    onMovieClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
+) {
+    val categories by viewModel.homeCategories.collectAsState()
+    val featuredMovies by viewModel.featuredMovies.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val carouselHeight = screenHeight * 0.70f
+
+    val searchFocusRequester = remember { FocusRequester() }
+    val carouselFocusRequester = remember { FocusRequester() }
+
+    // FIX 1: Use ScrollState instead of LazyListState
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(isLoading, featuredMovies) {
+        if (!isLoading && featuredMovies.isNotEmpty()) {
+            delay(500)
+            try { carouselFocusRequester.requestFocus() } catch (e: Exception) { }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+
+        if (errorMessage != null) {
+            ErrorState(errorMessage!!, onRetry = { viewModel.loadHomeContent() })
+        } else if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.Red
+            )
+        } else {
+            // FIX 2: Replaced LazyColumn with Column + verticalScroll
+            // This prevents the "Shift Down" effect because standard Column doesn't try to center-align focused items.
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = 50.dp) // Bottom padding for scrolling room
+            ) {
+                // FEATURED CAROUSEL
+                if (featuredMovies.isNotEmpty()) {
+                    FeaturedCarousel(
+                        movies = featuredMovies,
+                        height = carouselHeight,
+                        onMovieClick = onMovieClick,
+                        searchRequester = searchFocusRequester,
+                        carouselRequester = carouselFocusRequester
+                    )
+                }
+
+                // CATEGORIES
+                categories.forEach { (categoryName, movies) ->
+                    ContentRow(
+                        title = categoryName,
+                        movies = movies,
+                        onMovieClick = onMovieClick
+                    )
+                }
+            }
+        }
+
+        // SEARCH OVERLAY
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 30.dp, end = 50.dp)
+        ) {
+            SearchButton(
+                onClick = onSearchClick,
+                myRequester = searchFocusRequester,
+                downTarget = carouselFocusRequester
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchButton(
+    onClick: () -> Unit,
+    myRequester: FocusRequester,
+    downTarget: FocusRequester
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Button(
+        onClick = onClick,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isFocused) Color.White else Color.Black.copy(alpha = 0.4f),
+            contentColor = if (isFocused) Color.Black else Color.White
+        ),
+        modifier = Modifier
+            .focusRequester(myRequester)
+            .onPreviewKeyEvent {
+                if (it.key == Key.DirectionDown && it.type == KeyEventType.KeyDown) {
+                    downTarget.requestFocus()
+                    true
+                } else false
+            }
+            .onFocusChanged { isFocused = it.isFocused }
+            .size(48.dp)
+            .border(1.dp, if(isFocused) Color.Transparent else Color.White.copy(alpha = 0.5f), CircleShape),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Icon(
+            Icons.Default.Search,
+            contentDescription = "Search",
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun FeaturedCarousel(
+    movies: List<Movie>,
+    height: androidx.compose.ui.unit.Dp,
+    onMovieClick: (String) -> Unit,
+    searchRequester: FocusRequester,
+    carouselRequester: FocusRequester
+) {
+    Carousel(
+        itemCount = movies.size,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height)
+            .focusRequester(carouselRequester)
+            .onPreviewKeyEvent {
+                if (it.key == Key.DirectionUp && it.type == KeyEventType.KeyDown) {
+                    searchRequester.requestFocus()
+                    true
+                } else false
+            },
+        autoScrollDurationMillis = 7000,
+    ) { index ->
+        val movie = movies[index]
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = movie.backdropUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f), Color.Black), startY = 200f)))
+            Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(colors = listOf(Color.Black.copy(alpha = 0.9f), Color.Transparent), endX = 1200f)))
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 50.dp, bottom = 40.dp)
+                    .fillMaxWidth(0.6f)
+            ) {
+                Text(movie.title, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 1)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (movie.year.isNotEmpty()) {
+                        Badge(text = movie.year, color = Color(0xFF607D8B))
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    movie.languages.forEach { lang ->
+                        val color = when(lang.lowercase()) {
+                            "tamil" -> Color(0xFF2196F3)
+                            "telugu" -> Color(0xFFD32F2F)
+                            "hindi" -> Color(0xFFFF9800)
+                            else -> Color(0xFF9E9E9E)
+                        }
+                        Badge(text = lang, color = color)
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    if (movie.rating.isNotEmpty() && movie.rating != "N/A") {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.background(Color.DarkGray, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Icon(Icons.Default.Star, null, tint = Color.Yellow, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = movie.rating.replace("★", "").trim(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = movie.synopsis, color = Color(0xFFDDDDDD), fontSize = 16.sp, maxLines = 3, overflow = TextOverflow.Ellipsis, lineHeight = 24.sp)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row {
+                    NetflixButton(
+                        text = "Play",
+                        icon = Icons.Default.PlayArrow,
+                        isPrimary = true,
+                        onClick = { onMovieClick(URLEncoder.encode(movie.videoPageUrl, StandardCharsets.UTF_8.toString())) }
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    NetflixButton(
+                        text = "More Info",
+                        icon = Icons.Default.Info,
+                        isPrimary = false,
+                        onClick = { onMovieClick(URLEncoder.encode(movie.videoPageUrl, StandardCharsets.UTF_8.toString())) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NetflixButton(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, isPrimary: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(if (isFocused) 1.1f else 1.0f, label = "scale")
+    val backgroundColor = if (isFocused) Color.White else if (isPrimary) Color.White else Color(0xFF555555)
+    val contentColor = if (isFocused) Color.Black else if (isPrimary) Color.Black else Color.White
+
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor, contentColor = contentColor),
+        shape = RoundedCornerShape(4.dp),
+        modifier = modifier.onFocusChanged { isFocused = it.isFocused }.scale(scale)
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text = text, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun Badge(text: String, color: Color, textColor: Color = Color.White) {
+    Text(
+        text = text, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = textColor,
+        modifier = Modifier.background(color, RoundedCornerShape(2.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
+    )
+}
+
+@Composable
+fun ContentRow(title: String, movies: List<Movie>, onMovieClick: (String) -> Unit) {
+    Column(modifier = Modifier.padding(bottom = 24.dp)) {
+        Text(text = title, style = MaterialTheme.typography.titleMedium, color = Color(0xFFE5E5E5), fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 50.dp, bottom = 12.dp))
+
+        // FIX 3: Fixed Height Container for LazyRow (Bounce Fix)
+        // Card (2/3 aspect) ~ 210dp height + scale + padding -> ~300dp safe area.
+        // This stops the UI from resizing when a card scales up.
+        Box(modifier = Modifier.height(300.dp)) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 50.dp, vertical = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(movies) { movie -> MovieCard(movie, onMovieClick) }
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieCard(movie: Movie, onMovieClick: (String) -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+    // Scale slightly more aggressive for clarity
+    val scale by animateFloatAsState(if (isFocused) 1.15f else 1f, label = "scale")
+
+    Box(
+        modifier = Modifier
+            .width(140.dp)
+            .aspectRatio(2f / 3f)
+            .scale(scale)
+            .onFocusChanged { isFocused = it.isFocused }
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, if (isFocused) Color.White else Color.Transparent, RoundedCornerShape(8.dp))
+            .clickable {
+                try { onMovieClick(URLEncoder.encode(movie.videoPageUrl, StandardCharsets.UTF_8.toString())) }
+                catch (e: Exception) { e.printStackTrace() }
+            }
+    ) {
+        AsyncImage(model = movie.imageUrl, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+    }
+}
+
+@Composable
+fun ErrorState(message: String, onRetry: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.Warning, null, tint = Color.Red, modifier = Modifier.size(64.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(message, color = Color.White)
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onRetry) { Text("Retry") }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/HomeViewModel.kt">
+package com.example.einthusan.ui.screens
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.einthusan.data.EinthusanRepository
+import com.example.einthusan.data.Movie
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class HomeViewModel : ViewModel() {
+    private val repository = EinthusanRepository()
+
+    private val _homeCategories = MutableStateFlow<Map<String, List<Movie>>>(emptyMap())
+    val homeCategories = _homeCategories.asStateFlow()
+
+    private val _featuredMovies = MutableStateFlow<List<Movie>>(emptyList())
+    val featuredMovies = _featuredMovies.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+    // NEW: Error State
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
+
+    init {
+        loadHomeContent()
+    }
+
+    fun loadHomeContent() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            try {
+                val data = repository.fetchHomeData()
+                _featuredMovies.value = data.featuredMovies
+                _homeCategories.value = data.categories
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _errorMessage.value = "Failed to load: ${e.message}\nCheck your internet connection."
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/PlayerScreen.kt">
+package com.example.einthusan.ui.screens
+
+import androidx.annotation.OptIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.ui.PlayerView
+import androidx.tv.material3.Text
+import com.example.einthusan.data.Constants
+
+@OptIn(UnstableApi::class)
+@Composable
+fun PlayerScreen(
+    videoPageUrl: String,
+    viewModel: PlayerViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val streamUrl by viewModel.streamUrl.collectAsState()
+    val status by viewModel.status.collectAsState()
+
+    // Lifecycle owner to detect Home press vs Back press
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(videoPageUrl) {
+        viewModel.loadVideo(videoPageUrl)
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+        if (streamUrl == null) {
+            Text(text = status, color = Color.White)
+        } else {
+            // We remember the player instance so it survives recompositions but not disposals
+            val player = remember {
+                ExoPlayer.Builder(context).build().apply {
+                    playWhenReady = true
+                }
+            }
+
+            // 1. SETUP PLAYER (Runs once when URL is ready)
+            LaunchedEffect(streamUrl) {
+                val dataSourceFactory = DefaultHttpDataSource.Factory()
+                    .setUserAgent(Constants.USER_AGENT)
+                    .setDefaultRequestProperties(mapOf("Referer" to Constants.BASE_URL))
+
+                val mediaSource = DefaultMediaSourceFactory(dataSourceFactory)
+                    .createMediaSource(MediaItem.fromUri(streamUrl!!))
+
+                player.setMediaSource(mediaSource)
+                player.prepare()
+            }
+
+            // 2. MANAGE LIFECYCLE (Pause on Home, Release on Back)
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_PAUSE -> player.pause()
+                        Lifecycle.Event.ON_RESUME -> player.play()
+                        Lifecycle.Event.ON_STOP -> player.pause() // Extra safety
+                        else -> {}
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                    player.release() // Critical: Kills audio when backing out
+                }
+            }
+
+            // 3. RENDER VIEW
+            AndroidView(
+                factory = { ctx ->
+                    PlayerView(ctx).apply {
+                        this.player = player
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/PlayerViewModel.kt">
+package com.example.einthusan.ui.screens
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.einthusan.data.TokenScraper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class PlayerViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val tokenScraper = TokenScraper(application)
+
+    private val _streamUrl = MutableStateFlow<String?>(null)
+    val streamUrl = _streamUrl.asStateFlow()
+
+    private val _status = MutableStateFlow("Initializing...")
+    val status = _status.asStateFlow()
+
+    fun loadVideo(videoPageUrl: String) {
+        viewModelScope.launch {
+            _status.value = "Hunting for token..."
+            try {
+                // 1. Launch invisible WebView to intercept token
+                val finalUrl = tokenScraper.scrapeStreamUrl(videoPageUrl)
+                _status.value = "Token acquired. Buffering..."
+                _streamUrl.value = finalUrl
+            } catch (e: Exception) {
+                _status.value = "Error: ${e.message}"
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/SearchScreen.kt">
+package com.example.einthusan.ui.screens
+
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.tv.material3.*
+import coil.compose.AsyncImage
+import com.example.einthusan.data.Movie
+import com.example.einthusan.ui.VirtualKeyboard
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@Composable
+fun SearchScreen(
+    onMovieClick: (String) -> Unit,
+    viewModel: SearchViewModel = viewModel()
+) {
+    val movies by viewModel.searchResults.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    var queryText by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+
+    fun updateSearch(newText: String) {
+        queryText = newText
+        searchJob?.cancel()
+        if (newText.isNotEmpty()) {
+            searchJob = coroutineScope.launch {
+                delay(1000)
+                viewModel.search(newText)
+            }
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(24.dp)
+    ) {
+        // --- LEFT PANE: KEYBOARD ---
+        Column(
+            modifier = Modifier
+                .width(320.dp)
+                .fillMaxHeight()
+                .padding(end = 24.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.DarkGray.copy(alpha = 0.3f), MaterialTheme.shapes.small)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (queryText.isEmpty()) {
+                    Text("Search...", color = Color.Gray, fontSize = 18.sp)
+                } else {
+                    Text(queryText, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            VirtualKeyboard(
+                onKeyPress = { char -> updateSearch(queryText + char) },
+                onBackspace = { if (queryText.isNotEmpty()) updateSearch(queryText.dropLast(1)) },
+                onSpace = { updateSearch("$queryText ") },
+                onClear = { updateSearch("") }
+            )
+        }
+
+        // --- RIGHT PANE: RESULTS ---
+        Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.Red, modifier = Modifier.align(Alignment.Center))
+            } else if (errorMessage != null) {
+                Text(errorMessage!!, color = Color.Red, modifier = Modifier.align(Alignment.Center))
+            } else if (movies.isEmpty() && queryText.isNotEmpty()) {
+                Text("No results found.", color = Color.Gray, modifier = Modifier.align(Alignment.Center))
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(movies) { movie ->
+                        MovieCard(movie = movie, onClick = {
+                            // --- LOGGING THE CLICK HERE ---
+                            Log.d("EinthusanUI", "CLICKED: ${movie.title} | URL: ${movie.videoPageUrl}")
+                            try {
+                                val encodedUrl = URLEncoder.encode(movie.videoPageUrl, StandardCharsets.UTF_8.toString())
+                                onMovieClick(encodedUrl)
+                            } catch (e: Exception) {
+                                Log.e("EinthusanUI", "Error encoding URL", e)
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun MovieCard(movie: Movie, onClick: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    CompactCard(
+        onClick = onClick,
+        modifier = Modifier
+            .width(150.dp)
+            .aspectRatio(2f/3f)
+            .onFocusChanged { isFocused = it.isFocused },
+        image = {
+            AsyncImage(
+                model = movie.imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        },
+        title = {
+            if (isFocused) {
+                Text(
+                    text = movie.title,
+                    color = Color.White,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 4.dp),
+                    fontSize = 12.sp
+                )
+            }
+        }
+    )
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/screens/SearchViewModel.kt">
+package com.example.einthusan.ui.screens
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.einthusan.data.EinthusanRepository
+import com.example.einthusan.data.Movie
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class SearchViewModel : ViewModel() {
+    private val repository = EinthusanRepository()
+
+    private val _searchResults = MutableStateFlow<List<Movie>>(emptyList())
+    val searchResults = _searchResults.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    // NEW: Error state to show on screen
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
+
+    fun search(query: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null // Clear previous errors
+
+            Log.d("Einthusan", "Starting search for: $query")
+
+            try {
+                val results = repository.searchMovies(query)
+                Log.d("Einthusan", "Search success. Found ${results.size} movies.")
+
+                if (results.isEmpty()) {
+                    _errorMessage.value = "No movies found. The scraper selectors might be outdated."
+                } else {
+                    _searchResults.value = results
+                }
+            } catch (e: Exception) {
+                Log.e("Einthusan", "Search failed", e)
+                _errorMessage.value = "Error: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/theme/Color.kt">
+package com.example.einthusan.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+val Purple80 = Color(0xFFD0BCFF)
+val PurpleGrey80 = Color(0xFFCCC2DC)
+val Pink80 = Color(0xFFEFB8C8)
+
+val Purple40 = Color(0xFF6650a4)
+val PurpleGrey40 = Color(0xFF625b71)
+val Pink40 = Color(0xFF7D5260)
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/theme/Theme.kt">
+package com.example.einthusan.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.darkColorScheme
+import androidx.tv.material3.lightColorScheme
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun EinthusanTheme(
+    isInDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    val colorScheme = if (isInDarkTheme) {
+        darkColorScheme(
+            primary = Purple80,
+            secondary = PurpleGrey80,
+            tertiary = Pink80
+        )
+    } else {
+        lightColorScheme(
+            primary = Purple40,
+            secondary = PurpleGrey40,
+            tertiary = Pink40
+        )
+    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
+</file>
+
+<file path="app/src/main/java/com/example/einthusan/ui/theme/Type.kt">
+package com.example.einthusan.ui.theme
+
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Typography
+
+// Set of Material typography styles to start with
+@OptIn(ExperimentalTvMaterial3Api::class)
+val Typography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    )
+    /* Other default text styles to override
+    titleLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    )
+    */
+)
+</file>
+
+<file path="app/src/main/res/values/strings.xml">
+<resources>
+    <string name="app_name">Einthusan</string>
+</resources>
+</file>
+
+<file path="app/src/main/res/values/themes.xml">
+<resources>
+
+    <style name="Theme.Einthusan" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>
+</file>
+
+<file path="build.gradle.kts">
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+}
+</file>
+
+<file path="gradle.properties">
+# Project-wide Gradle settings.
+# IDE (e.g. Android Studio) users:
+# Gradle settings configured through the IDE *will override*
+# any settings specified in this file.
+# For more details on how to configure your build environment visit
+# http://www.gradle.org/docs/current/userguide/build_environment.html
+# Specifies the JVM arguments used for the daemon process.
+# The setting is particularly useful for tweaking memory settings.
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+# When configured, Gradle will run in incubating parallel mode.
+# This option should only be used with decoupled projects. For more details, visit
+# https://developer.android.com/r/tools/gradle-multi-project-decoupled-projects
+# org.gradle.parallel=true
+# AndroidX package structure to make it clearer which packages are bundled with the
+# Android operating system, and which are packaged with your app's APK
+# https://developer.android.com/topic/libraries/support-library/androidx-rn
+android.useAndroidX=true
+# Kotlin code style for this project: "official" or "obsolete":
+kotlin.code.style=official
+# Enables namespacing of each library's R class so that its R class includes only the
+# resources declared in the library itself and none from the library's dependencies,
+# thereby reducing the size of the R class for that library
+android.nonTransitiveRClass=true
+</file>
+
+<file path="gradle/libs.versions.toml">
+[versions]
+agp = "8.13.2"
+kotlin = "2.0.21"
+coreKtx = "1.17.0"
+appcompat = "1.7.1"
+composeBom = "2024.09.00"
+tvFoundation = "1.0.0-alpha12"
+tvMaterial = "1.0.1"
+lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.12.2"
+okhttp = "4.12.0"
+jsoup = "1.17.2"
+coil = "2.6.0"
+media3 = "1.3.1"
+navigationCompose = "2.8.0"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-tv-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvFoundation" }
+androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
+androidx-media3-hls = { group = "androidx.media3", name = "media3-exoplayer-hls", version.ref = "media3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+</file>
+
+<file path="gradle/wrapper/gradle-wrapper.properties">
+#Fri Dec 26 17:18:41 CST 2025
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+</file>
+
+<file path="gradlew">
+#!/bin/sh
+
+#
+# Copyright © 2015 the original authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+##############################################################################
+#
+#   Gradle start up script for POSIX generated by Gradle.
+#
+#   Important for running:
+#
+#   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
+#       noncompliant, but you have some other compliant shell such as ksh or
+#       bash, then to run this script, type that shell name before the whole
+#       command line, like:
+#
+#           ksh Gradle
+#
+#       Busybox and similar reduced shells will NOT work, because this script
+#       requires all of these POSIX shell features:
+#         * functions;
+#         * expansions «$var», «${var}», «${var:-default}», «${var+SET}»,
+#           «${var#prefix}», «${var%suffix}», and «$( cmd )»;
+#         * compound commands having a testable exit status, especially «case»;
+#         * various built-in commands including «command», «set», and «ulimit».
+#
+#   Important for patching:
+#
+#   (2) This script targets any POSIX shell, so it avoids extensions provided
+#       by Bash, Ksh, etc; in particular arrays are avoided.
+#
+#       The "traditional" practice of packing multiple parameters into a
+#       space-separated string is a well documented source of bugs and security
+#       problems, so this is (mostly) avoided, by progressively accumulating
+#       options in "$@", and eventually passing that to Java.
+#
+#       Where the inherited environment variables (DEFAULT_JVM_OPTS, JAVA_OPTS,
+#       and GRADLE_OPTS) rely on word-splitting, this is performed explicitly;
+#       see the in-line comments for details.
+#
+#       There are tweaks for specific operating systems such as AIX, CygWin,
+#       Darwin, MinGW, and NonStop.
+#
+#   (3) This script is generated from the Groovy template
+#       https://github.com/gradle/gradle/blob/HEAD/platforms/jvm/plugins-application/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
+#       within the Gradle project.
+#
+#       You can find Gradle at https://github.com/gradle/gradle/.
+#
+##############################################################################
+
+# Attempt to set APP_HOME
+
+# Resolve links: $0 may be a link
+app_path=$0
+
+# Need this for daisy-chained symlinks.
+while
+    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
+    [ -h "$app_path" ]
+do
+    ls=$( ls -ld "$app_path" )
+    link=${ls#*' -> '}
+    case $link in             #(
+      /*)   app_path=$link ;; #(
+      *)    app_path=$APP_HOME$link ;;
+    esac
+done
+
+# This is normally unused
+# shellcheck disable=SC2034
+APP_BASE_NAME=${0##*/}
+# Discard cd standard output in case $CDPATH is set (https://github.com/gradle/gradle/issues/25036)
+APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s\n' "$PWD" ) || exit
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD=maximum
+
+warn () {
+    echo "$*"
+} >&2
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+} >&2
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "$( uname )" in                #(
+  CYGWIN* )         cygwin=true  ;; #(
+  Darwin* )         darwin=true  ;; #(
+  MSYS* | MINGW* )  msys=true    ;; #(
+  NONSTOP* )        nonstop=true ;;
+esac
+
+CLASSPATH="\\\"\\\""
+
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD=$JAVA_HOME/jre/sh/java
+    else
+        JAVACMD=$JAVA_HOME/bin/java
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD=java
+    if ! command -v java >/dev/null 2>&1
+    then
+        die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+fi
+
+# Increase the maximum file descriptors if we can.
+if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
+    case $MAX_FD in #(
+      max*)
+        # In POSIX sh, ulimit -H is undefined. That's why the result is checked to see if it worked.
+        # shellcheck disable=SC2039,SC3045
+        MAX_FD=$( ulimit -H -n ) ||
+            warn "Could not query maximum file descriptor limit"
+    esac
+    case $MAX_FD in  #(
+      '' | soft) :;; #(
+      *)
+        # In POSIX sh, ulimit -n is undefined. That's why the result is checked to see if it worked.
+        # shellcheck disable=SC2039,SC3045
+        ulimit -n "$MAX_FD" ||
+            warn "Could not set maximum file descriptor limit to $MAX_FD"
+    esac
+fi
+
+# Collect all arguments for the java command, stacking in reverse order:
+#   * args from the command line
+#   * the main class name
+#   * -classpath
+#   * -D...appname settings
+#   * --module-path (only if needed)
+#   * DEFAULT_JVM_OPTS, JAVA_OPTS, and GRADLE_OPTS environment variables.
+
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if "$cygwin" || "$msys" ; then
+    APP_HOME=$( cygpath --path --mixed "$APP_HOME" )
+    CLASSPATH=$( cygpath --path --mixed "$CLASSPATH" )
+
+    JAVACMD=$( cygpath --unix "$JAVACMD" )
+
+    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+    for arg do
+        if
+            case $arg in                                #(
+              -*)   false ;;                            # don't mess with options #(
+              /?*)  t=${arg#/} t=/${t%%/*}              # looks like a POSIX filepath
+                    [ -e "$t" ] ;;                      #(
+              *)    false ;;
+            esac
+        then
+            arg=$( cygpath --path --ignore --mixed "$arg" )
+        fi
+        # Roll the args list around exactly as many times as the number of
+        # args, so each arg winds up back in the position where it started, but
+        # possibly modified.
+        #
+        # NB: a `for` loop captures its iteration list before it begins, so
+        # changing the positional parameters here affects neither the number of
+        # iterations, nor the values presented in `arg`.
+        shift                   # remove old arg
+        set -- "$@" "$arg"      # push replacement arg
+    done
+fi
+
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+# Collect all arguments for the java command:
+#   * DEFAULT_JVM_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,
+#     and any embedded shellness will be escaped.
+#   * For example: A user cannot expect ${Hostname} to be expanded, as it is an environment variable and will be
+#     treated as '${Hostname}' itself on the command line.
+
+set -- \
+        "-Dorg.gradle.appname=$APP_BASE_NAME" \
+        -classpath "$CLASSPATH" \
+        -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+        "$@"
+
+# Stop when "xargs" is not available.
+if ! command -v xargs >/dev/null 2>&1
+then
+    die "xargs is not available"
+fi
+
+# Use "xargs" to parse quoted args.
+#
+# With -n1 it outputs one arg per line, with the quotes and backslashes removed.
+#
+# In Bash we could simply go:
+#
+#   readarray ARGS < <( xargs -n1 <<<"$var" ) &&
+#   set -- "${ARGS[@]}" "$@"
+#
+# but POSIX shell has neither arrays nor command substitution, so instead we
+# post-process each arg (as a line of input to sed) to backslash-escape any
+# character that might be a shell metacharacter, then use eval to reverse
+# that process (while maintaining the separation between arguments), and wrap
+# the whole thing up as a single "set" statement.
+#
+# This will of course break if any of these variables contains a newline or
+# an unmatched quote.
+#
+
+eval "set -- $(
+        printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" |
+        xargs -n1 |
+        sed ' s~[^-[:alnum:]+,./:=@_]~\\&~g; ' |
+        tr '\n' ' '
+    )" '"$@"'
+
+exec "$JAVACMD" "$@"
+</file>
+
+<file path="gradlew.bat">
+@rem
+@rem Copyright 2015 the original author or authors.
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem
+@rem      https://www.apache.org/licenses/LICENSE-2.0
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+@rem SPDX-License-Identifier: Apache-2.0
+@rem
+
+@if "%DEBUG%"=="" @echo off
+@rem ##########################################################################
+@rem
+@rem  Gradle startup script for Windows
+@rem
+@rem ##########################################################################
+
+@rem Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
+set DIRNAME=%~dp0
+if "%DIRNAME%"=="" set DIRNAME=.
+@rem This is normally unused
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
+@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if %ERRORLEVEL% equ 0 goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+
+if exist "%JAVA_EXE%" goto execute
+
+echo. 1>&2
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME% 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
+
+goto fail
+
+:execute
+@rem Setup the command line
+
+set CLASSPATH=
+
+
+@rem Execute Gradle
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" -jar "%APP_HOME%\gradle\wrapper\gradle-wrapper.jar" %*
+
+:end
+@rem End local scope for the variables with windows NT shell
+if %ERRORLEVEL% equ 0 goto mainEnd
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem the _cmd.exe /c_ return code!
+set EXIT_CODE=%ERRORLEVEL%
+if %EXIT_CODE% equ 0 set EXIT_CODE=1
+if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
+exit /b %EXIT_CODE%
+
+:mainEnd
+if "%OS%"=="Windows_NT" endlocal
+
+:omega
+</file>
+
+<file path="settings.gradle.kts">
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "Einthusan"
+include(":app")
+</file>
+
+</files>
