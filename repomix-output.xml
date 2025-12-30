@@ -1489,10 +1489,14 @@ class DetailsViewModel : ViewModel() {
 package com.example.einthusan.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -1541,7 +1545,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     onMovieClick: (String) -> Unit,
@@ -1559,8 +1563,30 @@ fun HomeScreen(
     val searchFocusRequester = remember { FocusRequester() }
     val carouselFocusRequester = remember { FocusRequester() }
 
-    // FIX 1: Use ScrollState instead of LazyListState
-    val scrollState = rememberScrollState()
+    // --- SMOOTH SCROLL FIX ---
+    val stableFocusSpec = remember {
+        object : BringIntoViewSpec {
+            override fun calculateScrollDistance(
+                offset: Float, size: Float, containerSize: Float
+            ): Float {
+                // 1. If the item is already fully visible, DO NOT SCROLL.
+                if (offset >= 0 && offset + size <= containerSize) {
+                    return 0f
+                }
+
+                // 2. If item is above the screen (scrolling UP), scroll just enough to show the top.
+                // Also handles items that are larger than the entire screen (align top).
+                if (offset < 0 || size > containerSize) {
+                    return offset
+                }
+
+                // 3. If item is below the screen (scrolling DOWN), scroll just enough to show the bottom.
+                // PREVIOUS BUG: We were returning 'offset' here, which forced a "Jump to Top".
+                // changing it to 'offset + size - containerSize' aligns it to the bottom.
+                return offset + size - containerSize
+            }
+        }
+    }
 
     LaunchedEffect(isLoading, featuredMovies) {
         if (!isLoading && featuredMovies.isNotEmpty()) {
@@ -1579,32 +1605,33 @@ fun HomeScreen(
                 color = Color.Red
             )
         } else {
-            // FIX 2: Replaced LazyColumn with Column + verticalScroll
-            // This prevents the "Shift Down" effect because standard Column doesn't try to center-align focused items.
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(bottom = 50.dp) // Bottom padding for scrolling room
-            ) {
-                // FEATURED CAROUSEL
-                if (featuredMovies.isNotEmpty()) {
-                    FeaturedCarousel(
-                        movies = featuredMovies,
-                        height = carouselHeight,
-                        onMovieClick = onMovieClick,
-                        searchRequester = searchFocusRequester,
-                        carouselRequester = carouselFocusRequester
-                    )
-                }
+            // Apply the custom smooth scroll behavior
+            CompositionLocalProvider(LocalBringIntoViewSpec provides stableFocusSpec) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 100.dp)
+                ) {
+                    // 1. FEATURED CAROUSEL
+                    if (featuredMovies.isNotEmpty()) {
+                        item {
+                            FeaturedCarousel(
+                                movies = featuredMovies,
+                                height = carouselHeight,
+                                onMovieClick = onMovieClick,
+                                searchRequester = searchFocusRequester,
+                                carouselRequester = carouselFocusRequester
+                            )
+                        }
+                    }
 
-                // CATEGORIES
-                categories.forEach { (categoryName, movies) ->
-                    ContentRow(
-                        title = categoryName,
-                        movies = movies,
-                        onMovieClick = onMovieClick
-                    )
+                    // 2. CATEGORIES
+                    items(categories.toList()) { (categoryName, movies) ->
+                        ContentRow(
+                            title = categoryName,
+                            movies = movies,
+                            onMovieClick = onMovieClick
+                        )
+                    }
                 }
             }
         }
@@ -1624,6 +1651,7 @@ fun HomeScreen(
     }
 }
 
+// ... (Rest of the file remains exactly the same: SearchButton, FeaturedCarousel, etc.)
 @Composable
 fun SearchButton(
     onClick: () -> Unit,
@@ -1788,9 +1816,7 @@ fun ContentRow(title: String, movies: List<Movie>, onMovieClick: (String) -> Uni
     Column(modifier = Modifier.padding(bottom = 24.dp)) {
         Text(text = title, style = MaterialTheme.typography.titleMedium, color = Color(0xFFE5E5E5), fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 50.dp, bottom = 12.dp))
 
-        // FIX 3: Fixed Height Container for LazyRow (Bounce Fix)
-        // Card (2/3 aspect) ~ 210dp height + scale + padding -> ~300dp safe area.
-        // This stops the UI from resizing when a card scales up.
+        // Fixed Height Container (Bounce Fix)
         Box(modifier = Modifier.height(300.dp)) {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 50.dp, vertical = 20.dp),

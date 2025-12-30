@@ -148,7 +148,7 @@ fun MovieInfoSection(
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 val sortedLangs = movie.videoUrls.keys.sortedBy {
-                    when(it.lowercase()) { "tamil"->0; "telugu"->1; "hindi"->2; "malayalam"->3; else->9 }
+                    when(it.lowercase()) { "tamil"->0; "telugu"->1; "hindi"->2; else->9 }
                 }
 
                 sortedLangs.forEachIndexed { index, lang ->
