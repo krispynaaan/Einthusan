@@ -2,6 +2,8 @@ package com.example.einthusan.data
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -9,60 +11,77 @@ import android.webkit.WebViewClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+
+private const val TAG = "TokenScraper"
 
 class TokenScraper(private val context: Context) {
 
     @SuppressLint("SetJavaScriptEnabled")
     suspend fun scrapeStreamUrl(videoPageUrl: String): String = withContext(Dispatchers.Main) {
-        suspendCancellableCoroutine { continuation ->
-            // Initialize invisible WebView
-            val webView = WebView(context).apply {
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                settings.userAgentString = Constants.USER_AGENT
+        Log.d(TAG, "Starting scrape for: $videoPageUrl")
 
-                // 1x1 pixel size effectively invisible but still renders
-                layoutParams = ViewGroup.LayoutParams(1, 1)
-            }
+        val result = withTimeoutOrNull(15_000) {
+            suspendCancellableCoroutine<String> { continuation ->
+                val webView = WebView(context).apply {
+                    setLayerType(View.LAYER_TYPE_HARDWARE, null) // Hardware acceleration enabled for better perf unless crash
 
-            var resultFound = false
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.userAgentString = Constants.USER_AGENT
 
-            webView.webViewClient = object : WebViewClient() {
-                override fun shouldInterceptRequest(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): android.webkit.WebResourceResponse? {
-                    val url = request?.url.toString()
+                    // WebView must have a size to process pages, even if off-screen
+                    layoutParams = ViewGroup.LayoutParams(1, 1)
+                }
 
-                    // The Intercept Condition
-                    if (url.contains(".m3u8") && url.contains("cdn") && !resultFound) {
-                        resultFound = true
+                var resultFound = false
 
-                        // We found it! Resume the coroutine
-                        continuation.resume(url)
+                webView.webViewClient = object : WebViewClient() {
+                    override fun shouldInterceptRequest(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): android.webkit.WebResourceResponse? {
+                        val url = request?.url.toString()
 
-                        // Cleanup on Main thread
-                        view?.post {
-                            view.stopLoading()
-                            view.destroy()
+                        // Look for the HLS stream URL (m3u8) served from the CDN
+                        if (url.contains(".m3u8") && url.contains("cdn") && !resultFound) {
+                            Log.i(TAG, "TOKEN FOUND! URL: $url")
+                            resultFound = true
+
+                            // Resume the coroutine with the found URL
+                            if (continuation.isActive) {
+                                continuation.resume(url)
+                            }
+
+                            // Cleanup on Main thread
+                            view?.post {
+                                try {
+                                    view.stopLoading()
+                                    view.clearHistory()
+                                    view.removeAllViews()
+                                    view.destroy()
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Error destroying WebView", e)
+                                }
+                            }
                         }
+                        return super.shouldInterceptRequest(view, request)
                     }
-                    return super.shouldInterceptRequest(view, request)
+                }
+
+                Log.d(TAG, "Loading URL into WebView...")
+                webView.loadUrl(videoPageUrl)
+
+                // Cleanup if the coroutine is cancelled (e.g., user presses Back or timeouts)
+                continuation.invokeOnCancellation {
+                    Log.w(TAG, "Scrape Cancelled/Timeout. Cleaning up.")
+                    webView.stopLoading()
+                    webView.destroy()
                 }
             }
-
-            // Start loading
-            webView.loadUrl(videoPageUrl)
-
-            // Safety timeout (optional but recommended in production) could be added here
-
-            // Handle coroutine cancellation to clean up WebView
-            continuation.invokeOnCancellation {
-                webView.stopLoading()
-                webView.destroy()
-            }
         }
+        
+        result ?: throw Exception("Timeout waiting for video stream")
     }
 }

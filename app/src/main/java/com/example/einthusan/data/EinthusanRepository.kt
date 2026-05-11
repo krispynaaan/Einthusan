@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -25,11 +26,11 @@ class EinthusanRepository {
         .retryOnConnectionFailure(true)
         .build()
 
-    private val requestSemaphore = Semaphore(3)
+    // Semaphore set to 5 for parallel loading (improves speed significantly)
+    private val requestSemaphore = Semaphore(5)
 
     private val TAG = "EinthusanRepo"
 
-    // REMOVED MALAYALAM
     private val LANGUAGES = listOf("tamil", "telugu", "hindi", "kannada", "bengali", "marathi", "punjabi")
     private val CORE_LANGS = listOf("tamil", "telugu", "hindi")
 
@@ -42,12 +43,13 @@ class EinthusanRepository {
     suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
         val encodedQuery = URLEncoder.encode(query, "UTF-8")
 
-        // Hard check only the core 3 languages
         val rawResults = CORE_LANGS.map { lang ->
             async {
-                requestSemaphore.withPermit {
-                    scrapeSearchForLang(lang, encodedQuery)
-                }
+                retryWithBackoff(3) {
+                    requestSemaphore.withPermit {
+                        scrapeSearchForLang(lang, encodedQuery)
+                    }
+                } ?: emptyList()
             }
         }.awaitAll()
 
@@ -97,15 +99,19 @@ class EinthusanRepository {
 
     // --- 2. HOME PAGE FUNCTION ---
     suspend fun fetchHomeData(): HomeData = withContext(Dispatchers.IO) {
-        // Only fetch core languages
         val deferredResults = CORE_LANGS.map { lang ->
             async {
-                try {
-                    requestSemaphore.withPermit { scrapeHomeForLang(lang) }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to scrape $lang Home: ${e.message}")
-                    HomeData(emptyList(), emptyMap())
+                val result = retryWithBackoff(times = 3, initialDelay = 1000) {
+                    requestSemaphore.withPermit {
+                        if (lang != CORE_LANGS.first()) delay(500)
+                        scrapeHomeForLang(lang)
+                    }
                 }
+
+                if (result == null) {
+                    Log.e(TAG, "CRITICAL: $lang failed to load after 3 attempts.")
+                }
+                result ?: HomeData(emptyList(), emptyMap())
             }
         }
         val results = deferredResults.awaitAll()
@@ -139,88 +145,107 @@ class EinthusanRepository {
         return@withContext HomeData(sortedFeatured, finalCategories)
     }
 
+    private suspend fun <T> retryWithBackoff(
+        times: Int,
+        initialDelay: Long = 500,
+        factor: Double = 2.0,
+        block: suspend () -> T
+    ): T? {
+        var currentDelay = initialDelay
+        repeat(times - 1) { attempt ->
+            try {
+                return block()
+            } catch (e: Exception) {
+                Log.w(TAG, "Attempt ${attempt + 1} failed: ${e.message}. Retrying in ${currentDelay}ms...")
+                delay(currentDelay)
+                currentDelay = (currentDelay * factor).toLong()
+            }
+        }
+        return try {
+            block()
+        } catch (e: Exception) {
+            Log.e(TAG, "Final attempt failed: ${e.message}")
+            null
+        }
+    }
+
     private fun scrapeHomeForLang(lang: String): HomeData {
         val url = "${Constants.BASE_URL}/movie/browse/?lang=$lang"
         val featuredList = mutableListOf<Movie>()
         val categoryMap = mutableMapOf<String, List<Movie>>()
 
-        try {
-            val doc = fetchDocument(url)
-            val displayLang = lang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        val doc = fetchDocument(url)
+        val displayLang = lang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-            val featuredElements = doc.select("#UIFeaturedFilms .tabview")
-            for (element in featuredElements) {
-                try {
-                    val title = element.select(".block2 h2").text()
-                    var link = element.select(".block2 .title").attr("href")
-                    var thumb = element.select(".block1 img").attr("src")
+        val featuredElements = doc.select("#UIFeaturedFilms .tabview")
+        for (element in featuredElements) {
+            try {
+                val title = element.select(".block2 h2").text()
+                var link = element.select(".block2 .title").attr("href")
+                var thumb = element.select(".block1 img").attr("src")
 
-                    val infoBlock = element.selectFirst(".block2 .info p")
-                    val rawInfoText = infoBlock?.text() ?: ""
-                    val year = """(19|20)\d{2}""".toRegex().find(rawInfoText)?.value ?: ""
-                    val synopsis = element.select(".block2 .desc").text()
+                val infoBlock = element.selectFirst(".block2 .info p")
+                val rawInfoText = infoBlock?.text() ?: ""
+                val year = """(19|20)\d{2}""".toRegex().find(rawInfoText)?.value ?: ""
+                val synopsis = element.select(".block2 .desc").text()
 
-                    val ratingsMap = mutableMapOf<String, Double>()
-                    element.select(".average-rating li").forEach { el ->
-                        val label = el.selectFirst("label")?.text() ?: ""
-                        val valueStr = el.selectFirst("p")?.attr("data-value") ?: el.selectFirst("p")?.text()
-                        val value = valueStr?.toDoubleOrNull() ?: 0.0
-                        ratingsMap[label] = value
-                    }
-                    val calculatedRating = calculateWeightedRating(ratingsMap)
-
-                    if (link.startsWith("/")) link = "${Constants.BASE_URL}$link"
-                    if (thumb.startsWith("//")) thumb = "https:$thumb"
-
-                    if (title.isNotEmpty()) {
-                        featuredList.add(Movie(
-                            title = title,
-                            imageUrl = thumb,
-                            videoPageUrl = link,
-                            synopsis = synopsis,
-                            year = year,
-                            rating = calculatedRating,
-                            languages = listOf(displayLang),
-                            videoUrls = mapOf(displayLang to link)
-                        ))
-                    }
-                } catch (e: Exception) { }
-            }
-
-            val categoryTitles = doc.select("#UIShowcasedFilms .tabbing ul li label p").map { it.text() }
-            val categoryContents = doc.select("#UIShowcasedFilms > .tabbing > .tabview")
-
-            categoryTitles.forEachIndexed { index, title ->
-                if (index < categoryContents.size) {
-                    val categoryElement = categoryContents[index]
-                    val movies = mutableListOf<Movie>()
-                    val items = categoryElement.select("ul li")
-                    for (item in items) {
-                        try {
-                            val t = item.select("a.title").text()
-                            var l = item.select("a.title").attr("href")
-                            var th = item.select("img").attr("src")
-                            if (l.startsWith("/")) l = "${Constants.BASE_URL}$l"
-                            if (th.startsWith("//")) th = "https:$th"
-                            if (t.isNotEmpty()) {
-                                movies.add(Movie(
-                                    title = t,
-                                    imageUrl = th,
-                                    videoPageUrl = l,
-                                    synopsis = "",
-                                    year = "",
-                                    languages = listOf(displayLang),
-                                    videoUrls = mapOf(displayLang to l)
-                                ))
-                            }
-                        } catch (e: Exception) { }
-                    }
-                    if (movies.isNotEmpty()) categoryMap[title] = movies
+                val ratingsMap = mutableMapOf<String, Double>()
+                element.select(".average-rating li").forEach { el ->
+                    val label = el.selectFirst("label")?.text() ?: ""
+                    val valueStr = el.selectFirst("p")?.attr("data-value") ?: el.selectFirst("p")?.text()
+                    val value = valueStr?.toDoubleOrNull() ?: 0.0
+                    ratingsMap[label] = value
                 }
+                val calculatedRating = calculateWeightedRating(ratingsMap)
+
+                if (link.startsWith("/")) link = "${Constants.BASE_URL}$link"
+                if (thumb.startsWith("//")) thumb = "https:$thumb"
+
+                if (title.isNotEmpty()) {
+                    featuredList.add(Movie(
+                        title = title,
+                        imageUrl = thumb,
+                        videoPageUrl = link,
+                        synopsis = synopsis,
+                        year = year,
+                        rating = calculatedRating,
+                        languages = listOf(displayLang),
+                        videoUrls = mapOf(displayLang to link)
+                    ))
+                }
+            } catch (e: Exception) { }
+        }
+
+        val categoryTitles = doc.select("#UIShowcasedFilms .tabbing ul li label p").map { it.text() }
+        val categoryContents = doc.select("#UIShowcasedFilms > .tabbing > .tabview")
+
+        categoryTitles.forEachIndexed { index, title ->
+            if (index < categoryContents.size) {
+                val categoryElement = categoryContents[index]
+                val movies = mutableListOf<Movie>()
+                val items = categoryElement.select("ul li")
+                for (item in items) {
+                    try {
+                        val t = item.select("a.title").text()
+                        var l = item.select("a.title").attr("href")
+                        var th = item.select("img").attr("src")
+                        if (l.startsWith("/")) l = "${Constants.BASE_URL}$l"
+                        if (th.startsWith("//")) th = "https:$th"
+                        if (t.isNotEmpty()) {
+                            movies.add(Movie(
+                                title = t,
+                                imageUrl = th,
+                                videoPageUrl = l,
+                                synopsis = "",
+                                year = "",
+                                languages = listOf(displayLang),
+                                videoUrls = mapOf(displayLang to l)
+                            ))
+                        }
+                    } catch (e: Exception) { }
+                }
+                if (movies.isNotEmpty()) categoryMap[title] = movies
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Scrape logic failed inside $lang: ${e.message}")
-            throw e
         }
 
         return HomeData(featuredList, categoryMap)
@@ -232,7 +257,6 @@ class EinthusanRepository {
         for (incoming in movies) {
             val normTitle = incoming.title.lowercase().trim()
 
-            // STRICT MATCHING
             val matchIndex = mergedList.indexOfFirst { existing ->
                 val existingTitle = existing.title.lowercase().trim()
                 val titleMatch = existingTitle == normTitle
@@ -248,6 +272,8 @@ class EinthusanRepository {
                 val bestRating = if (existing.rating.isNotEmpty() && existing.rating != "N/A") existing.rating else incoming.rating
                 val bestBackdrop = if (existing.backdropUrl != existing.imageUrl) existing.backdropUrl else incoming.backdropUrl
                 val bestSynopsis = if (existing.synopsis.length > incoming.synopsis.length) existing.synopsis else incoming.synopsis
+                // NEW: Merge genres
+                val bestGenres = (existing.genres + incoming.genres).distinct()
 
                 mergedList[matchIndex] = existing.copy(
                     year = bestYear,
@@ -255,7 +281,8 @@ class EinthusanRepository {
                     backdropUrl = bestBackdrop,
                     synopsis = bestSynopsis,
                     languages = newLanguages,
-                    videoUrls = newUrls
+                    videoUrls = newUrls,
+                    genres = bestGenres // Added
                 )
             } else {
                 mergedList.add(incoming)
@@ -276,24 +303,14 @@ class EinthusanRepository {
         } catch (e: Exception) { throw e }
 
         val currentLang = scrapedData.languages.firstOrNull() ?: "Tamil"
-
-        // SEARCH SIBLINGS (Strict Hard Check)
         Log.d(TAG, "Details found for: ${scrapedData.title}. Checking ALL languages...")
 
         val siblings = searchMovies(scrapedData.title)
 
-        // EXACT MATCH FILTER
         val matches = siblings.filter { candidate ->
             val titleMatch = candidate.title.trim().equals(scrapedData.title.trim(), ignoreCase = true)
             val yearMatch = (candidate.year.isEmpty() || scrapedData.year.isEmpty() || candidate.year == scrapedData.year)
-
-            if (titleMatch && yearMatch) {
-                Log.d(TAG, "MATCHED: ${candidate.title} (${candidate.languages})")
-                true
-            } else {
-                Log.d(TAG, "REJECTED: ${candidate.title} != ${scrapedData.title}")
-                false
-            }
+            titleMatch && yearMatch
         }
 
         var finalLanguages = scrapedData.languages
@@ -305,7 +322,6 @@ class EinthusanRepository {
             finalUrls.putAll(match.videoUrls)
         }
 
-        // TMDB ENRICHMENT
         var finalRating = scrapedData.rating
         var finalCover = scrapedData.coverUrl
         var finalBackdrop = scrapedData.backdropUrl
@@ -365,12 +381,16 @@ class EinthusanRepository {
                 val tmdbYear = details.release_date?.take(4) ?: ""
                 val finalRating = if (enriched.rating.isNotEmpty() && enriched.rating != "N/A") enriched.rating else tmdbRating
 
+                // NEW: Extract genres from TMDB
+                val tmdbGenres = details.genres?.map { it.name } ?: emptyList()
+
                 enriched = enriched.copy(
                     imageUrl = if (details.poster_path != null) "${Constants.TMDB_IMAGE_BASE}${details.poster_path}" else movie.imageUrl,
                     backdropUrl = if (details.backdrop_path != null) "${Constants.TMDB_IMAGE_BASE}${details.backdrop_path}" else movie.imageUrl,
                     synopsis = if (!details.overview.isNullOrEmpty()) details.overview else movie.synopsis,
                     rating = finalRating,
-                    year = if (movie.year.isEmpty()) tmdbYear else movie.year
+                    year = if (movie.year.isEmpty()) tmdbYear else movie.year,
+                    genres = tmdbGenres // Populate genres
                 )
             }
         } catch (e: Exception) { }
@@ -435,7 +455,6 @@ class EinthusanRepository {
                 commonGenres.forEach { g -> if (infoText.contains(g, ignoreCase = true)) genres.add(g) }
             }
         } catch(e: Exception) { Log.e(TAG, "Genre parsing failed for $title", e) }
-        Log.d(TAG, "Scraped Genres for $title: $genres")
 
         val castList = mutableListOf<CastMember>()
         try {
@@ -478,18 +497,14 @@ class EinthusanRepository {
     }
 
     private fun fetchDocument(url: String): org.jsoup.nodes.Document {
-        var attempt = 0
-        var lastException: Exception? = null
-        while (attempt < 3) {
-            try {
-                val request = Request.Builder().url(url).header("User-Agent", Constants.USER_AGENT).build()
-                val response = client.newCall(request).execute()
-                if (response.isSuccessful) return Jsoup.parse(response.body?.string() ?: "")
-                else response.close()
-            } catch (e: Exception) { lastException = e }
-            attempt++
-            Thread.sleep(1000)
+        val request = Request.Builder().url(url).header("User-Agent", Constants.USER_AGENT).build()
+        val response = client.newCall(request).execute()
+
+        if (response.isSuccessful) {
+            return Jsoup.parse(response.body?.string() ?: "")
+        } else {
+            response.close()
+            throw IOException("HTTP Error: ${response.code}")
         }
-        throw lastException ?: IOException("Failed to fetch $url")
     }
 }

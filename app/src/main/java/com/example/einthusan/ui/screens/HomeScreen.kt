@@ -56,6 +56,7 @@ import com.example.einthusan.data.Movie
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -75,27 +76,20 @@ fun HomeScreen(
     val searchFocusRequester = remember { FocusRequester() }
     val carouselFocusRequester = remember { FocusRequester() }
 
-    // --- SMOOTH SCROLL FIX ---
-    val stableFocusSpec = remember {
+    // FIXED: Added a threshold to prevent "bouncing".
+    // This spec centers items but ignores tiny adjustments (< 50 pixels).
+    val centeringFocusSpec = remember {
         object : BringIntoViewSpec {
             override fun calculateScrollDistance(
                 offset: Float, size: Float, containerSize: Float
             ): Float {
-                // 1. If the item is already fully visible, DO NOT SCROLL.
-                if (offset >= 0 && offset + size <= containerSize) {
-                    return 0f
-                }
+                val itemCenter = offset + (size / 2f)
+                val containerCenter = containerSize / 2f
+                val distance = itemCenter - containerCenter
 
-                // 2. If item is above the screen (scrolling UP), scroll just enough to show the top.
-                // Also handles items that are larger than the entire screen (align top).
-                if (offset < 0 || size > containerSize) {
-                    return offset
-                }
-
-                // 3. If item is below the screen (scrolling DOWN), scroll just enough to show the bottom.
-                // PREVIOUS BUG: We were returning 'offset' here, which forced a "Jump to Top".
-                // changing it to 'offset + size - containerSize' aligns it to the bottom.
-                return offset + size - containerSize
+                // If the item is already within 50px of the center, don't scroll.
+                // This prevents vertical jitter when moving horizontally between items in the same row.
+                return if (abs(distance) < 50f) 0f else distance
             }
         }
     }
@@ -117,8 +111,8 @@ fun HomeScreen(
                 color = Color.Red
             )
         } else {
-            // Apply the custom smooth scroll behavior
-            CompositionLocalProvider(LocalBringIntoViewSpec provides stableFocusSpec) {
+            // Apply the stabilized centering spec
+            CompositionLocalProvider(LocalBringIntoViewSpec provides centeringFocusSpec) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 100.dp)
@@ -163,7 +157,6 @@ fun HomeScreen(
     }
 }
 
-// ... (Rest of the file remains exactly the same: SearchButton, FeaturedCarousel, etc.)
 @Composable
 fun SearchButton(
     onClick: () -> Unit,
@@ -240,9 +233,16 @@ fun FeaturedCarousel(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 50.dp, bottom = 40.dp)
-                    .fillMaxWidth(0.6f)
+                    .fillMaxWidth(0.9f)
             ) {
-                Text(movie.title, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 1)
+                Text(
+                    text = movie.title,
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -270,6 +270,16 @@ fun FeaturedCarousel(
                             Text(text = movie.rating.replace("★", "").trim(), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
+                }
+
+                if (movie.genres.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = movie.genres.joinToString(" | "),
+                        color = Color(0xFFCCCCCC),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -325,11 +335,13 @@ fun Badge(text: String, color: Color, textColor: Color = Color.White) {
 
 @Composable
 fun ContentRow(title: String, movies: List<Movie>, onMovieClick: (String) -> Unit) {
-    Column(modifier = Modifier.padding(bottom = 24.dp)) {
+    // FIX 1: Set padding to 1.dp as requested (but this wasn't the main issue)
+    Column(modifier = Modifier.padding(bottom = 1.dp)) {
         Text(text = title, style = MaterialTheme.typography.titleMedium, color = Color(0xFFE5E5E5), fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 50.dp, bottom = 12.dp))
 
-        // Fixed Height Container (Bounce Fix)
-        Box(modifier = Modifier.height(300.dp)) {
+        // FIX 2: Reduced height from 300.dp to 260.dp
+        // 300dp was leaving ~90dp of dead space. 260dp fits the focused card (242dp) comfortably.
+        Box(modifier = Modifier.height(260.dp)) {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 50.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -344,7 +356,6 @@ fun ContentRow(title: String, movies: List<Movie>, onMovieClick: (String) -> Uni
 @Composable
 fun MovieCard(movie: Movie, onMovieClick: (String) -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
-    // Scale slightly more aggressive for clarity
     val scale by animateFloatAsState(if (isFocused) 1.15f else 1f, label = "scale")
 
     Box(

@@ -8,9 +8,10 @@ data class Movie(
     val year: String = "",
     val rating: String = "",
     val backdropUrl: String = imageUrl,
-    // Multi-language support
     val languages: List<String> = emptyList(),
-    val videoUrls: Map<String, String> = emptyMap()
+    val videoUrls: Map<String, String> = emptyMap(),
+    // NEW: Added genres field
+    val genres: List<String> = emptyList()
 )
 
 data class MovieDetails(
@@ -22,7 +23,6 @@ data class MovieDetails(
     val rating: String,
     val genres: List<String>,
     val cast: List<CastMember>,
-    // Multi-language support for Details Screen
     val languages: List<String>,
     val videoUrls: Map<String, String>
 )

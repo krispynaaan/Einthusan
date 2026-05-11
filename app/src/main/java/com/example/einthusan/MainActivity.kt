@@ -20,6 +20,8 @@ import com.example.einthusan.ui.screens.PlayerScreen
 import com.example.einthusan.ui.screens.SearchScreen
 import com.example.einthusan.ui.theme.EinthusanTheme
 import com.example.einthusan.ui.screens.DetailsScreen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
@@ -34,12 +36,11 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-NavHost(navController = navController, startDestination = "home") {
-                        
+                    NavHost(navController = navController, startDestination = "home") {
+
                         // 1. HOME
                         composable("home") {
                             HomeScreen(
-                                // CLICKING A MOVIE NOW GOES TO DETAILS, NOT PLAYER
                                 onMovieClick = { encodedUrl ->
                                     navController.navigate("details/$encodedUrl")
                                 },
@@ -52,14 +53,13 @@ NavHost(navController = navController, startDestination = "home") {
                         // 2. SEARCH
                         composable("search") {
                             SearchScreen(
-                                // CLICKING A MOVIE IN SEARCH ALSO GOES TO DETAILS
                                 onMovieClick = { encodedUrl ->
                                     navController.navigate("details/$encodedUrl")
                                 }
                             )
                         }
 
-                        // 3. DETAILS (NEW!)
+                        // 3. DETAILS
                         composable(
                             route = "details/{videoUrl}",
                             arguments = listOf(navArgument("videoUrl") { type = NavType.StringType })
@@ -67,24 +67,23 @@ NavHost(navController = navController, startDestination = "home") {
                             val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
                             DetailsScreen(
                                 videoUrl = videoUrl,
-                                onPlayClick = { url ->
-                                    // Encoding again might be double-encoding, usually safe to pass 'url' 
-                                    // if the player route expects encoded string.
-                                    // Since 'url' comes from our scraped data (unencoded), 
-                                    // we should encode it before passing to route 'player/{url}'.
-                                    val encoded = java.net.URLEncoder.encode(url, "UTF-8")
+                                onPlayClick = { streamUrl ->
+                                    // streamUrl is the RAW scraped .m3u8 link.
+                                    // We must encode it before passing it to the navigation route.
+                                    val encoded = URLEncoder.encode(streamUrl, StandardCharsets.UTF_8.toString())
                                     navController.navigate("player/$encoded")
                                 }
                             )
                         }
-                        
+
                         // 4. PLAYER
                         composable(
                             route = "player/{videoUrl}",
                             arguments = listOf(navArgument("videoUrl") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val videoUrl = backStackEntry.arguments?.getString("videoUrl") ?: ""
-                            PlayerScreen(videoPageUrl = videoUrl)
+
+                            PlayerScreen(streamUrl = videoUrl)
                         }
                     }
                 }
