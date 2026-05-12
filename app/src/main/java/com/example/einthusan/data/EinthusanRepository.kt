@@ -38,12 +38,17 @@ class EinthusanRepository {
         val featuredMovies: List<Movie>,
         val categories: Map<String, List<Movie>>
     )
+    
+    companion object {
+        // In-memory application session cache shared across all repository instances
+        var cachedHomeData: HomeData? = null
+    }
 
     // --- 1. SEARCH FUNCTION ---
     suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
         val encodedQuery = URLEncoder.encode(query, "UTF-8")
 
-        val rawResults = CORE_LANGS.map { lang ->
+        val rawResults = LANGUAGES.map { lang ->
             async {
                 retryWithBackoff(3) {
                     requestSemaphore.withPermit {
@@ -99,11 +104,14 @@ class EinthusanRepository {
 
     // --- 2. HOME PAGE FUNCTION ---
     suspend fun fetchHomeData(): HomeData = withContext(Dispatchers.IO) {
-        val deferredResults = CORE_LANGS.map { lang ->
+        // Return memory cached data if available rather than re-fetching network/TMDB details
+        cachedHomeData?.let { return@withContext it }
+
+        val deferredResults = LANGUAGES.map { lang ->
             async {
                 val result = retryWithBackoff(times = 3, initialDelay = 1000) {
                     requestSemaphore.withPermit {
-                        if (lang != CORE_LANGS.first()) delay(500)
+                        if (lang != LANGUAGES.first()) delay(500)
                         scrapeHomeForLang(lang)
                     }
                 }
@@ -142,7 +150,9 @@ class EinthusanRepository {
             finalCategories[catTitle] = merged.sortedByDescending { parseRating(it.rating) }
         }
 
-        return@withContext HomeData(sortedFeatured, finalCategories)
+        val resultData = HomeData(sortedFeatured, finalCategories)
+        cachedHomeData = resultData // Save to cache array
+        return@withContext resultData
     }
 
     private suspend fun <T> retryWithBackoff(
@@ -255,18 +265,31 @@ class EinthusanRepository {
         val mergedList = mutableListOf<Movie>()
 
         for (incoming in movies) {
-            val normTitle = incoming.title.lowercase().trim()
+            val cleanTarget = incoming.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
 
             val matchIndex = mergedList.indexOfFirst { existing ->
-                val existingTitle = existing.title.lowercase().trim()
-                val titleMatch = existingTitle == normTitle
+                val cleanExisting = existing.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
+                val titleMatch = cleanExisting == cleanTarget
                 val yearMatch = (existing.year.isEmpty() || incoming.year.isEmpty() || existing.year == incoming.year)
                 titleMatch && yearMatch
             }
 
             if (matchIndex != -1) {
                 val existing = mergedList[matchIndex]
-                val newLanguages = (existing.languages + incoming.languages).distinct()
+                
+                // Merge cleanly
+                val combinedLangs = (existing.languages + incoming.languages).distinct()
+                
+                // Sort Languages: Tamil, Telugu, Hindi, then alphabetical
+                val newLanguages = combinedLangs.sortedWith(compareBy<String> {
+                    when (it.lowercase()) {
+                        "tamil" -> 0
+                        "telugu" -> 1
+                        "hindi" -> 2
+                        else -> 99
+                    }
+                }.thenBy { it })
+                
                 val newUrls = existing.videoUrls + incoming.videoUrls
                 val bestYear = if (existing.year.isNotEmpty()) existing.year else incoming.year
                 val bestRating = if (existing.rating.isNotEmpty() && existing.rating != "N/A") existing.rating else incoming.rating
@@ -302,18 +325,46 @@ class EinthusanRepository {
             requestSemaphore.withPermit { scrapeEinthusanDetails(videoPageUrl) }
         } catch (e: Exception) { throw e }
 
-        val currentLang = scrapedData.languages.firstOrNull() ?: "Tamil"
-        Log.d(TAG, "Details found for: ${scrapedData.title}. Checking ALL languages...")
+        val urlLang = videoPageUrl.substringAfter("lang=", "tamil").substringBefore("&")
+        val currentLangFromUrl = urlLang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-        val siblings = searchMovies(scrapedData.title)
+        val currentLang = if (scrapedData.languages.isNotEmpty() && scrapedData.languages.first().isNotBlank()) {
+            scrapedData.languages.first()
+        } else {
+            currentLangFromUrl
+        }
+        
+        // Absolute Best Approach: Aggressive fuzzy-matching against the global Memory Cache first.
+        // Einthusan's native search endpoint is extremely flaky and transliterates titles incorrectly.
+        // By checking our aggressively deduplicated Home Cache, we guarantee 1:1 consistency with the UI.
+        val siblings = mutableListOf<Movie>()
+        
+        cachedHomeData?.let { homeCache ->
+            val allMovies = homeCache.featuredMovies + homeCache.categories.values.flatten()
+            val cleanTargetTitle = scrapedData.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
 
+            val matchesFromCache = allMovies.filter { candidate ->
+                val cleanCandidate = candidate.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
+                cleanCandidate == cleanTargetTitle
+            }
+            siblings.addAll(matchesFromCache)
+        }
+        
+        // Only if the cache yields absolutely nothing (e.g. searching from SearchScreen for an old movie)
+        // do we fallback to the flaky Einthusan web scraper search endpoint.
+        if (siblings.isEmpty()) {
+            siblings.addAll(searchMovies(scrapedData.title))
+        }
+
+        val cleanTarget = scrapedData.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
         val matches = siblings.filter { candidate ->
-            val titleMatch = candidate.title.trim().equals(scrapedData.title.trim(), ignoreCase = true)
+            val cleanCandidate = candidate.title.replace("[^a-zA-Z0-9]".toRegex(), "").lowercase()
+            val titleMatch = cleanCandidate == cleanTarget
             val yearMatch = (candidate.year.isEmpty() || scrapedData.year.isEmpty() || candidate.year == scrapedData.year)
             titleMatch && yearMatch
         }
 
-        var finalLanguages = scrapedData.languages
+        var finalLanguages = (scrapedData.languages + listOf(currentLang)).filter { it.isNotBlank() }.distinct()
         var finalUrls = scrapedData.videoUrls.toMutableMap()
         finalUrls[currentLang] = videoPageUrl
 
@@ -321,6 +372,15 @@ class EinthusanRepository {
             finalLanguages = (finalLanguages + match.languages).distinct()
             finalUrls.putAll(match.videoUrls)
         }
+
+        finalLanguages = finalLanguages.sortedWith(compareBy<String> {
+            when (it.lowercase()) {
+                "tamil" -> 0
+                "telugu" -> 1
+                "hindi" -> 2
+                else -> 99
+            }
+        }.thenBy { it })
 
         var finalRating = scrapedData.rating
         var finalCover = scrapedData.coverUrl
@@ -437,8 +497,13 @@ class EinthusanRepository {
         val rawInfoText = infoBlock?.text() ?: ""
         val year = """(19|20)\d{2}""".toRegex().find(rawInfoText)?.value ?: ""
 
-        val langRaw = infoBlock?.select("span")?.text() ?: "Tamil"
-        val langText = langRaw.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        val urlLang = videoPageUrl.substringAfter("lang=", "tamil").substringBefore("&")
+        val fallbackLang = urlLang.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+        val langRaw = infoBlock?.select("span")?.text()
+        val langText = if (!langRaw.isNullOrBlank()) {
+            langRaw.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        } else fallbackLang
 
         val genres = mutableListOf<String>()
         try {

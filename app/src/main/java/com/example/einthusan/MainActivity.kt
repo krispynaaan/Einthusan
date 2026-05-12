@@ -15,6 +15,11 @@ import androidx.navigation.navArgument
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
+import coil.ImageLoader
+import coil.compose.LocalImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import androidx.compose.runtime.CompositionLocalProvider
 import com.example.einthusan.ui.screens.HomeScreen
 import com.example.einthusan.ui.screens.PlayerScreen
 import com.example.einthusan.ui.screens.SearchScreen
@@ -27,13 +32,31 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 1. Configure Persistent Coil Image Loader for robust aggressive caching
+        val imageLoader = ImageLoader.Builder(this)
+            .memoryCache {
+                MemoryCache.Builder(this)
+                    .maxSizePercent(0.25)
+                    .build()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(this.cacheDir.resolve("image_cache"))
+                    .maxSizePercent(0.02)
+                    .build()
+            }
+            .crossfade(true)
+            .build()
+            
         setContent {
-            EinthusanTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    shape = RectangleShape,
-                    colors = SurfaceDefaults.colors(containerColor = Color.Black)
-                ) {
+            CompositionLocalProvider(LocalImageLoader provides imageLoader) {
+                EinthusanTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RectangleShape,
+                        colors = SurfaceDefaults.colors(containerColor = Color.Black)
+                    ) {
                     val navController = rememberNavController()
 
                     NavHost(navController = navController, startDestination = "home") {
@@ -87,6 +110,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
             }
         }
     }
