@@ -27,11 +27,19 @@ import com.example.einthusan.ui.theme.EinthusanTheme
 import com.example.einthusan.ui.screens.DetailsScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.example.einthusan.utils.UpdateManager
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalTvMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Check for updates automatically in the background
+        lifecycleScope.launch {
+            UpdateManager.checkForUpdates(this@MainActivity)
+        }
         
         // 1. Configure Persistent Coil Image Loader for robust aggressive caching
         val imageLoader = ImageLoader.Builder(this)
