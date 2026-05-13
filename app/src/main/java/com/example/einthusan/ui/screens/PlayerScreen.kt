@@ -53,6 +53,7 @@ import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.Text
 import com.example.einthusan.data.Constants
+import android.webkit.CookieManager
 
 private const val TAG = "ExoPlayerEvent"
 
@@ -209,11 +210,26 @@ fun PlayerScreen(
             }
 
             LaunchedEffect(currentStreamUrl) {
+                // Ensure we forward cookies and referer that the WebView used when scraping
+                val cookieString = try {
+                    CookieManager.getInstance().getCookie(currentStreamUrl ?: "")
+                } catch (e: Exception) {
+                    null
+                }
+
+                val defaultHeaders = mutableMapOf<String, String>()
+                if (!cookieString.isNullOrBlank()) {
+                    defaultHeaders["Cookie"] = cookieString
+                }
+                // Some CDNs require a Referer header matching the originating site
+                defaultHeaders["Referer"] = Constants.BASE_URL
+
                 val dataSourceFactory = DefaultHttpDataSource.Factory()
                     .setUserAgent(Constants.USER_AGENT)
                     .setConnectTimeoutMs(Constants.TIMEOUT)
                     .setReadTimeoutMs(Constants.TIMEOUT)
                     .setAllowCrossProtocolRedirects(true)
+                    .setDefaultRequestProperties(defaultHeaders)
 
                 val mediaSource = DefaultMediaSourceFactory(dataSourceFactory)
                     .createMediaSource(MediaItem.fromUri(currentStreamUrl!!))
